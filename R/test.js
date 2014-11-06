@@ -1,1 +1,0 @@
-db.Mapping_Data.find().forEach(function(record){printjson(record);});
