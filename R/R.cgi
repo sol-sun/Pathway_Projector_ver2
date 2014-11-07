@@ -209,7 +209,7 @@ $insert .= qq(});
 $insert .= qq|}|;
 $insert =~ s/\n//g;
 
-#print $insert;
+print $insert;
 
 $insert = decode_json($insert);
 
