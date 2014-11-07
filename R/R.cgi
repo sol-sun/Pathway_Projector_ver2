@@ -209,7 +209,7 @@ $insert .= qq(});
 $insert .= qq|}|;
 $insert =~ s/\n//g;
 
-print $insert;
+#print $insert;
 
 $insert = decode_json($insert);
 
@@ -245,17 +245,23 @@ sub R_Graph{
   my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways) = ($_[0], $_[1], $_[2], $_[3], $_[4], $_[5]);
   my $first_dir = shift @$Mapping_Pathways;
   my $file_from = "./${Mapping_ID}/${first_dir}/${Query_ID}.png";
-  
+
   ## Data sets
   $R->send(qq `Time = c(${time})`);
-  $R->send(qq`Bar_Chart = data.frame( Time = factor(Time, levels = Time), Frequency = c(${freq}) )`);
+  $R->send(qq`Bar_Chart = data.frame( Time = c(Time), Frequency = c(${freq}) )`);
   ##.
   $R->send(qq`png(file="${file_from}", width=400, height=400, bg="gray", pointsize="20.5");`);
-#  $R->send(q|par(mai=c(0.3,0.6,0,0));|);
+  #  $R->send(q|par(mai=c(0.3,0.6,0,0));|);
+  $R->send(q`par(mar=c(1.4,1.8,1.4,0))`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
   if ($Graph_Type eq 'bar') {	## Generate bar chart
-    $R->send(q`barplot(Bar_Chart$Frequency, col="#3c3c3c", ylim=c(0,100), family="Times New Roman")`);
+    $R->send(q`barplot(Bar_Chart$Frequency, col="#3c3c3c", ylim=c(0,100), yaxp=c(0,100,5), las=1, family="Times New Roman")`);
   } elsif ($Graph_Type eq 'line') {
-    $R->send(q`plot(Bar_Chart$Frequency, ann=F, type="o", col="#3c3c3c", lty=1, lwd=7, bty="n", ylim=c(0,100), yaxp=c(0,100,5), family="Times New Roman", las=1 )`);
+
+    $R->send(q`plot(Bar_Chart$Frequency,  type="o", col="#3c3c3c", lty=1, lwd=9, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), xlim=c(1,as.numeric(Time[length(Time)])), family="Times New Roman", xaxt="n", yaxt="n", ann=F)`);
+    $R->send(q`axis(2, mgp=c(0,0.6,0), family="Times New Roman", las=1)`); # y axis options
+    $R->send(q`axis(1, mgp=c(0,0.4,0), family="Times New Roman")`); # x axis options
+    $R->send(qq`title(main="${Query_ID}", line=0.4, family="Times New Roman", cex.main=1)`);
+
   } elsif ($Graph_Type eq 'group') {
   }
   my $ret = $R->read;
