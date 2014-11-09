@@ -293,19 +293,19 @@ sub R_Graph{
 #  $R->send(qq`Time = c(${time})`);
   $R->send(qq`Data = data.frame( Time = c(${time}), Frequency = c(${freq}) )`);
   ##.
-  $R->send(qq`png(file="${file_from}", width=400, height=400, bg="gray", pointsize="20.5");`);
+  $R->send(qq`png(file="${file_from}", width=400, height=400, bg="transparent", pointsize="20.5");`);
   $R->send(q`par(mar=c(1.4,1.8,1.4,0), family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
 
 
   
   if ($Graph_Type eq 'bar') {	## Bar plot
-    $R->send(q`barplot(Data$Frequency, col="#3c3c3c", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
+    $R->send(q`barplot(Data$Frequency, col="black", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1)`); # y axis options
     $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1)`);
     
   }elsif ($Graph_Type eq 'line') { ## Line plot
 
-    $R->send(q`plot(Data$Frequency,  type="o", col="#3c3c3c", lty=1, lwd=9, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
+    $R->send(q`plot(Data$Frequency,  type="o", col="black", lty=1, lwd=9, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1)`); # y axis options
     $R->send(q`axis(1, mgp=c(0,0.4,0), Data$Time)`); # x axis options
     $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1.2)`);

@@ -9,6 +9,7 @@ use Time::HiRes;
 use Data::Dumper;
 use Statistics::R;
 use lib "../Scripts/pm";
+use MapGen;
 use ActionMongoDB;
 use File::Copy 'copy';
 use Archive::Zip;
@@ -118,13 +119,17 @@ while (<$file>) {
 
 	## Get latlng data
 	if ($$record{'Shape'} eq 'Rectangle') { ## Shape that applies to this condition is very ""LOW""
-	  @coords = ( (&xy2latlng(&latlng2xy("$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}")) )) , (&xy2latlng((&latlng2xy("$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}")))) );
+	  @coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
+
+	  
 	} elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
+
 	  @coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+	  
 	}
 	#.
 
-	$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_xy" : ["$coords[0]", "$coords[1]"], "ne_xy" : ["$coords[2]", "$coords[3]"]},\n|;
+	$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_latlng" : ["$coords[0]", "$coords[1]"], "ne_latlng" : ["$coords[2]", "$coords[3]"]},\n|;
 
 	
 	### Example of JSON data
@@ -165,6 +170,8 @@ while (<$file>) {
 =cut	
 	
       }
+
+
       
     }elsif ($Query_ID =~ m/^R/) { ## similar...
       $object = $collection->find({'Meta.KEGG_REACTION' => "$Query_ID"});
@@ -181,13 +188,43 @@ while (<$file>) {
 	}
 	##.
 
+	my ($sw_x, $sw_y, $ne_x, $ne_y);
+	my ($sw_lat, $sw_lng, $ne_lat, $ne_lng);
+
 	if ($$record{'Shape'} eq 'Rectangle') {
-	  @coords = ( (&xy2latlng("$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}")) , (&xy2latlng("$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}")) );
+
+	  
+	  ($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
+
+          ##これを足がかりとする．他の変更は一斉に．
+	  ##latlngをxyに変換し画像サイズに設定の上またlatlng値に戻す．
+	  ## swを固定する．つまり右上にはみ出た画像を貼ることになる．
+
+	  my $rect_width = $ne_x - $sw_x;
+	  $ne_y = $sw_y -  $rect_width;
+
+=pod
+	    if($$record{'Pathway'} eq '03020'){
+
+	      print "width: $rect_width", "\t";
+	      print "height: $rect_height", "\n";
+
+	    }
+
+=cut
+
+	  ($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+	  ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+
+	            ##.
 	} elsif ($$record{'Shape'} eq 'Circle') {
-	  @coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}", "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+	  
+	  ($sw_lat, $sw_lng, $ne_lat, $ne_lng) =  ( (&Generator::xy2latlng("$$record{'xy'}{'x'}", "$$record{'xy'}{'y'}")), (&Generator::xy2latlng("$$record{'xy'}{'x'}", "$$record{'xy'}{'y'}")) );
+	  
+	  
 	}
 
-	$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_xy" : ["$coords[0]", "$coords[1]"], "ne_xy" : ["$coords[2]", "$coords[3]"]},\n|;
+	$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_latlng" : ["$sw_lat", "$sw_lng"], "ne_latlng" : ["$ne_lat", "$ne_lng"]},\n|;
 
 
       }
@@ -285,41 +322,6 @@ sub R_Graph{
   }
     
   return 1;			## successful!!
-}
-
-sub xy2latlng{
-
-  my ($x, $y) = @_;
-  my $pi = 4 * atan2(1,1);
-  my $rd = $pi / 180;
-  my $length = 8192;
-
-  my $lng = ($x * 360) / $length - 180;
-  my $tmp = (2 * $pi * $y / $length) - $pi;
-  my $lat = ($pi / 4 - atan2(exp($tmp), 1)) * 2 / $rd;
-
-  $lat = 85.05 if ($lat > 85.05);
-  $lat = -85.05 if ($lat < -85.05);
-  return ($lat, $lng);
-
-}
-
-sub latlng2xy{
-  my ($lat, $lng) = @_;
-
-  my $pi = 4 * atan2(1,1);
-  my $rd = $pi / 100;
-  my $length = 8192;
-
-  my $x = $length * (180 + $lng) / 360;
-  my $y = $length * (log(tan($pi/4 - $lat/90 * 50 * $rd / 2)) + $pi) / (2 * $pi);
-
-
-  return (int($x), int($y));
-}
-
-sub tan{
-  return sin($_[0]) / cos($_[0]);
 }
 
 
