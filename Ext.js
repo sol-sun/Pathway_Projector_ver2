@@ -233,19 +233,26 @@ function Query_Search(){
                                                   cache: false,
                                                   success:
                                               function(json){
+						// All overlay images pushed in "mapping_list" array;
                                                   mapping_list = new google.maps.MVCArray();
+						  
                                                   var data = Ext.decode(json.responseText);
+						  
                                                   Mapping_result_json = data;
+
 						  Mapping_ID = data.Mapping_ID;
-                                                  for(var i=0; i< data.Data.map05218.length;i++){
-                                                      var img = 'R/'+data.Data.map05218[i].Graph_Path;
-                                                      var sw = new google.maps.LatLng(data.Data.map05218[i].sw_latlng[0], data.Data.map05218[i].sw_latlng[1]);
-                                                      var ne = new google.maps.LatLng(data.Data.map05218[i].ne_latlng[0], data.Data.map05218[i].ne_latlng[1]);
-                                                      var bound = new google.maps.LatLngBounds(ne, sw);
-						      
+
+                                                  for(var i=0; i< data.Data.map03020.length;i++){
+				
+                                                      var img = 'R/'+data.Data.map03020[i].Graph_Path;
+                                                      var sw = new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]);
+                                                      var ne = new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1]);
+                                                      var bound = new google.maps.LatLngBounds(sw, ne);
+
                                                       Mapping_Data = new USGSOverlay(bound, img, map);
                                                       mapping_list.push(Mapping_Data);
-
+			
+						  
                                                   }
 
                                               }

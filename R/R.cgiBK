@@ -6,18 +6,19 @@ use warnings;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 use Time::HiRes;
-use Data::Dumper;#use lib '/Users/miyaharataiyou/perl5/lib/perl5/';
+use Data::Dumper;
 use Statistics::R;
 use lib "../Scripts/pm";
 use ActionMongoDB;
 use File::Copy 'copy';
 use Archive::Zip;
 use Errno ();
-
+use JSON;
 
 ## R start set
 my $R = Statistics::R->new();
 $R->startR;
+
 my $start_time = Time::HiRes::time;
 ##.
 
@@ -30,11 +31,14 @@ print "Content-type: text/html;charset=utf-8;\n\n";
 ## Mongo DB start set
 my $client = MongoDB::MongoClient->new();
 $client->authenticate('Carpesys', 't11881tm', 'taiyo1102');
-my $databse = $client->get_database('Carpesys');
-my $collection = $databse->get_collection('Element');
+my $database = $client->get_database('Carpesys');
+my $collection = $database->get_collection('Element');
+my $collection2 = $database->get_collection('Mapping_Data');
 ##.
 
-#my $bool = &ActionMongoDB::FIND("Carpesys", "Pathway_Maps", "Taiyo", "yktm1102", '{}');
+
+## mapping.data parsing(/R/mapping.data)
+##
 
 open my $file, '<', "mapping.data";
 my ($Query_ID, $Graph_Type);
@@ -42,99 +46,185 @@ my ($Time, $Frequency);
 my $Mapping_ID = ((time % 1296000) * 10 + int(rand(10)) + 1048576);
 my @Mapping_Pathways;
 
-## Mapping DATA Directory
-#umask(0);
+## create Mapping DATA Directory(Graphs)
 unless (mkdir ("./$Mapping_ID", 0755) or $! == Errno::EEXIST){
-    die "failed to create dir:./$Mapping_ID:$!";
+  die "failed to create dir:./$Mapping_ID:$!";
 }
 ##.
 
 my %JSON;
+while (<$file>) {
+  chomp;
 
-while(<$file>){
-    chomp;
-    if(defined($Query_ID) && $_ =~ m|\d+,\d+|){
-	my @datas = split(/,/);
-	$Time .= qq("$datas[0]",);
-	$Frequency .= qq($datas[1],);
-	next;
-    }elsif($_ =~ m|//|){
-	chop($Time);
-	chop($Frequency);
-	my $return_num =  &R_Graph($Query_ID, $Mapping_ID, $Graph_Type, $Time, $Frequency, \@Mapping_Pathways);
-	
-	if($return_num == 0){ ## Generate Graph is failed
-	    $R->stopR();
-	    printf("%0.3f",Time::HiRes::time - $start_time);
-	    die "$Query_ID: Generate Barplot is failed\n";
+  if (defined($Query_ID) && $_ =~ m|\d+,\d+|) {  # Occurs when $Query_ID defined
+
+    my @datas = split(/,/);
+    $Time .= qq("$datas[0]",);
+    $Frequency .= qq($datas[1],);
+    next;
+
+    
+  }elsif ($_ =~ m|//|) { # Occurs when $_ equal '//' (end of Data) 
+    chop($Time);
+    chop($Frequency);
+
+    ## Generate Graphs with R
+    my $return_num =  &R_Graph($Query_ID, $Mapping_ID, $Graph_Type, $Time, $Frequency, \@Mapping_Pathways);
+    ##.
+    
+    if ($return_num == 0) { ## Occurs when &R_Graph failed
+      $R->stopR();
+      printf("%0.3f",Time::HiRes::time - $start_time);
+      die "$Query_ID: Generate Graph failed\n";
+    }
+    ($Query_ID, $Graph_Type, $Time, $Frequency) = undef;
+    @Mapping_Pathways = ();
+  }
+
+  ##.
+
+  if (/^>([A-Za-z]\d{5}),([line|bar]+)/) { ## First parsing
+    my $object;
+    ($Query_ID, $Graph_Type) = ($1, $2);
+
+    ## Divide in "Compound, Glycan, Drug" and "Reaction"; The formars mapping in BarGraph.The another mapping in LineGraph
+
+    if ($Query_ID =~ m/^[CDG]/) {
+
+      ## MongoDB search Get information of $Query_ID
+      ##
+      ## Variable list
+      ## .@Mapping_Pathway => KEGG-Pathway ID
+      ## .latlng
+      
+      $object = $collection->find({'Meta.cpd' => "$Query_ID"});
+
+
+      unless($object->next){ ## Error Process. Occurs when the MongoDB search failed.
+	$R->stopR();
+	die "Not found $Query_ID in Database";
+      }
+
+      
+      while (my $record = $object->next) {
+	my @coords;
+
+	##created directory( e.g. /[ID]/00010/ ) for mapping datas
+	push @Mapping_Pathways, $$record{'Pathway'};
+	unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST) {
+	  die "failed to create dir:./$Mapping_ID:$!";
 	}
-	($Query_ID, $Graph_Type, $Time, $Frequency) = undef;
-	@Mapping_Pathways = ();
+	#.
+
+	## Get latlng data
+	if ($$record{'Shape'} eq 'Rectangle') { ## Shape that applies to this condition is very ""LOW""
+	  @coords = ( (&xy2latlng(&latlng2xy("$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}")) )) , (&xy2latlng((&latlng2xy("$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}")))) );
+	} elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
+	  @coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+	}
+	#.
+
+	$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_xy" : ["$coords[0]", "$coords[1]"], "ne_xy" : ["$coords[2]", "$coords[3]"]},\n|;
+
+	
+	### Example of JSON data
+=pod
+  
+  { "Mapping_ID":"0000000",
+    
+    "Data":{
+      #      ..
+      "map04910" : [
+		    {
+	"sw_xy"     <=    "sw_latlng" : [
+				    "-66.3815962885395",
+				    "-2.83817427385912"
+				   ],
+	"ne_xy"	  <=   "ne_latlng" : [
+				    "-68.3355742069462",
+				    "-16.5809128630707"
+				   ],
+		     "Graph_Path" : "7432847/04910/R02584.png"
+		    },
+		    {
+		     "sw_latlng" : [
+				    "-4.52057567282767",
+				    "-132.796680497925"
+				   ],
+		     "ne_latlng" : [
+				    "-9.55944925669965",
+				    "-146.539419087137"
+				   ],
+		     "Graph_Path" : "7432847/04910/R02584.png"
+		    }
+		   ]#,
+	#		       ..
+    }
+  }
+
+=cut	
+	
+      }
+      
+    }elsif ($Query_ID =~ m/^R/) { ## similar...
+      $object = $collection->find({'Meta.KEGG_REACTION' => "$Query_ID"});
+
+      ## change => latlng じゃなくて xy値を持ってくる．
+      while (my $record = $object->next){
+	my @coords;
+	push @Mapping_Pathways, $$record{'Pathway'};
+
+	
+	##created directory( e.g. /[ID]/00010/ ) for mapping datas
+	unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST) {
+	  die "failed to create dir:./$Mapping_ID:$!";
+	}
+	##.
+
+	if ($$record{'Shape'} eq 'Rectangle') {
+	  @coords = ( (&xy2latlng("$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}")) , (&xy2latlng("$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}")) );
+	} elsif ($$record{'Shape'} eq 'Circle') {
+	  @coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}", "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+	}
+
+	$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_xy" : ["$coords[0]", "$coords[1]"], "ne_xy" : ["$coords[2]", "$coords[3]"]},\n|;
+
+
+      }
+      
     }
     
-    if(/^>([A-Za-z]\d{5}),([line|bar]+)/){
-	my $object;
-	($Query_ID, $Graph_Type) = ($1, $2);
-	if($Query_ID =~ m/^[CDG]/){
-	    $object = $collection->find({'Meta.cpd' => "$Query_ID"});
-	    
-	    while(my $record = $object->next){
-		my @latlng;
-		push @Mapping_Pathways, $$record{'Pathway'};
-		unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST){
-		    die "failed to create dir:./$Mapping_ID:$!";
-		}
-		
-		if($$record{'Shape'} eq 'Rectangle'){
-		    @latlng = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}" );
-		}elsif($$record{'Shape'} eq 'Circle'){
-		    @latlng =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}", "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
-		}
-		#		print qq| "$$record{'Pathway'}" : \n\t{"sw_latlng" : \["$latlng[0]", "$latlng[1]"\], "ne_latlng" : \["$latlng[2]", "$latlng[3]"\]}\n |;
-		$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_latlng" : ["$latlng[0]", "$latlng[1]"], "ne_latlng" : ["$latlng[2]", "$latlng[3]"]},\n|;#print qq| "$$record{'Pathway'}" : \n\t{"sw_latlng" : ["$latlng[0]", "$latlng[1]"], "ne_latlng" : ["$latlng[2]", "$latlng[3]"]}\n |;
-		
-	    }
-	    
-	    
-	}elsif($Query_ID =~ m/^R/){
-	    $object = $collection->find({'Meta.KEGG_REACTION' => "$Query_ID"});
-	    while(my $record = $object->next){
-		my @latlng;
-		push @Mapping_Pathways, $$record{'Pathway'};
-		unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST){
-		    die "failed to create dir:./$Mapping_ID:$!";
-		}
-		
-		if($$record{'Shape'} eq 'Rectangle'){
-		    @latlng = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}" );
-		}elsif($$record{'Shape'} eq 'Circle'){
-		    @latlng =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}", "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
-		}
-		$JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_latlng" : ["$latlng[0]", "$latlng[1]"], "ne_latlng" : ["$latlng[2]", "$latlng[3]"]},\n|;#print qq| "$$record{'Pathway'}" : \n\t{"sw_latlng" : ["$latlng[0]", "$latlng[1]"], "ne_latlng" : ["$latlng[2]", "$latlng[3]"]}\n |;
-	    }
-	    
-	}
-	unless($object){ ## Error Process
-	    $R->stopR();
-	    printf("%0.3f",Time::HiRes::time - $start_time);
-	    die "$_\n$object\n";
-	}
-	
-    }
-    
+  }
 }
 close $file;
+
 $R->stopR();
-open my $out, '>', "test.out";
 
-print $out qq|{\n|;
-	  #print %JSON;
-	  while(my ($key, $value) = each(%JSON)){
-	      $value =~ s/,\n$//;
-	      print $out qq|"$key" : [$value]|;
-	  }
-	  print $out qq|}\n|;
+my $insert;
+$insert .= qq|{|;
+$insert .=  qq( "Mapping_ID":"$Mapping_ID", );
+$insert .=  qq( "Data":{);
+	       
+while (my ($key, $value) = each(%JSON)) {
+  $value =~ s/,\n$//g;
+  $insert .= qq|"map$key" : [$value],|;
+}
+$insert =~ s/,$//;
+$insert .= qq(});
+$insert .= qq|}|;
+$insert =~ s/\n//g;
 
+# result for mapping(test)
+ print $insert;
+#.
+
+$insert = decode_json($insert);
+
+## Insert in MongoDB "Mapping_Data" collection
+#$collection2->insert($insert);
+##
+
+=pod
 
 ## Create a Zip file of Mapping Data
 my $zip = Archive::Zip->new();
@@ -143,54 +233,103 @@ map{$_->desiredCompressionMethod( 'COMPRESSION_LEVEL_BEST_COMPRESSION' )} $zip->
 $zip->writeToFileNamed( "${Mapping_ID}/${Mapping_ID}.zip" );
 ##.
 
+=cut
+
+
+
 ##
 #system("rm -r ./${Mapping_ID}");
 
-printf("%0.3f",Time::HiRes::time - $start_time);
-print "\n";
+#printf("%0.3f",Time::HiRes::time - $start_time);
+#print "\n";
 ##############
 ##Subroutine
 ##############
 
 sub R_Graph{
-    my $R_script;
-    my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways) = ($_[0], $_[1], $_[2], $_[3], $_[4], $_[5]);
+  my $R_script;
+  my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways) = ($_[0], $_[1], $_[2], $_[3], $_[4], $_[5]);
+  my $first_dir = shift @$Mapping_Pathways;
+  my $file_from = "./${Mapping_ID}/${first_dir}/${Query_ID}.png";
 
-    my $first_dir = shift @$Mapping_Pathways;
+  ## Data sets
+#  $R->send(qq`Time = c(${time})`);
+  $R->send(qq`Data = data.frame( Time = c(${time}), Frequency = c(${freq}) )`);
+  ##.
+  $R->send(qq`png(file="${file_from}", width=400, height=400, bg="gray", pointsize="20.5");`);
+  $R->send(q`par(mar=c(1.4,1.8,1.4,0), family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
 
-    my $file_from = "./${Mapping_ID}/${first_dir}/${Query_ID}.png";
+
+  
+  if ($Graph_Type eq 'bar') {	## Bar plot
+    $R->send(q`barplot(Data$Frequency, col="#3c3c3c", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
+    $R->send(q`axis(2, mgp=c(0,0.6,0), las=1)`); # y axis options
+    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1)`);
     
-## Data sets
-    $R->send(qq`Bar_Chart = data.frame( Time = factor(c(${time}), levels = c(${time})), Frequency = c(${freq}) )`);
-##.
-    $R->send(qq`png(file="${file_from}",width=200, height=200, bg=rgb(1,1,1,alpha=0.8), pointsize="11.5");`);    
+  }elsif ($Graph_Type eq 'line') { ## Line plot
 
-    if($Graph_Type eq 'bar'){ ## Generate bar chart
-	$R->send(q`barplot(Bar_Chart$Frequency, col="skyblue")`);
+    $R->send(q`plot(Data$Frequency,  type="o", col="#3c3c3c", lty=1, lwd=9, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
+    $R->send(q`axis(2, mgp=c(0,0.6,0), las=1)`); # y axis options
+    $R->send(q`axis(1, mgp=c(0,0.4,0), Data$Time)`); # x axis options
+    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1.2)`);
 
+  } elsif ($Graph_Type eq 'group') {
+  }
+  my $ret = $R->read;
+  $R->send(qq`dev.off();`);
 
-    }elsif($Graph_Type eq 'line'){
-	$R->send(q`plot(Bar_Chart$Frequency,ann=FALSE, type="l", col="skyblue", lty=1, lwd=7)`);
-	
-    }elsif($Graph_Type eq 'group'){
-	
-    }
-    my $ret = $R->read;
-    $R->send(qq`dev.off();`);
-
-	for my $dir(@$Mapping_Pathways){
-	    next if -e "./${Mapping_ID}/${dir}/${Query_ID}.png";
-	    my $file_to = "${Mapping_ID}/${dir}/";
-	    copy($file_from, $file_to) or die "Cannot copy $file_from to $file_to: $!";
-	}
+  for my $dir (@$Mapping_Pathways) {
+    next if -e "./${Mapping_ID}/${dir}/${Query_ID}.png";
+    my $file_to = "${Mapping_ID}/${dir}/";
+    copy($file_from, $file_to) or die "Cannot copy $file_from to $file_to: $!";
+  }
     
-    return 1; ## successful!!
+  return 1;			## successful!!
 }
+
+sub xy2latlng{
+
+  my ($x, $y) = @_;
+  my $pi = 4 * atan2(1,1);
+  my $rd = $pi / 180;
+  my $length = 8192;
+
+  my $lng = ($x * 360) / $length - 180;
+  my $tmp = (2 * $pi * $y / $length) - $pi;
+  my $lat = ($pi / 4 - atan2(exp($tmp), 1)) * 2 / $rd;
+
+  $lat = 85.05 if ($lat > 85.05);
+  $lat = -85.05 if ($lat < -85.05);
+  return ($lat, $lng);
+
+}
+
+sub latlng2xy{
+  my ($lat, $lng) = @_;
+
+  my $pi = 4 * atan2(1,1);
+  my $rd = $pi / 100;
+  my $length = 8192;
+
+  my $x = $length * (180 + $lng) / 360;
+  my $y = $length * (log(tan($pi/4 - $lat/90 * 50 * $rd / 2)) + $pi) / (2 * $pi);
+
+
+  return (int($x), int($y));
+}
+
+sub tan{
+  return sin($_[0]) / cos($_[0]);
+}
+
+
 
     
 =pod
-    uk2007 = data.frame(Commodity = factor(c("Cow milk", "Wheat", "Sugar beet", "Potatoes", "Barley"), levels = c("Cow milk", "Wheat", "Sugar beet", "Potatoes", "Barley")), Production = c(10, 20, 30, 40, 60))
-    barplot(uk2007$Production, names = uk2007$Commodity, xlab = "Time", ylab = "Frequence",main = "C00178")
+  
+  uk2007 = data.frame(Commodity = factor(c("Cow milk", "Wheat", "Sugar beet", "Potatoes", "Barley"), levels = c("Cow milk", "Wheat", "Sugar beet", "Potatoes", "Barley")), Production = c(10, 20, 30, 40, 60))
+  barplot(uk2007$Production, names = uk2007$Commodity, xlab = "Time", ylab = "Frequence",main = "C00178")
+
 =cut
 
 
