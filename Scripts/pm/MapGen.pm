@@ -16,7 +16,7 @@ sub print_header{
     <link href="./Scripts/css/default.css" rel="stylesheet">
 	<!-- jquery library Scripts //-->
 
-<script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false" charset="utf-8"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false&libraries=visualization" charset="utf-8"></script>
 <script type="text/javascript" src="./Scripts/jquery/jquery-2.0.2.min.js"></script>
     <link href='./Scripts/css/tabmenu.css' rel='stylesheet' type="text/css" media='all' />
 
@@ -51,7 +51,6 @@ sub print_header{
     var mapping_list;
     var Mapping_result_json;
     var Mapping_ID;
-    
     
     Ext.onReady(function(){    // Load Ext JS 4.0 library before show Google maps Scripts.
 

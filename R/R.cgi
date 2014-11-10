@@ -37,7 +37,6 @@ my $collection = $database->get_collection('Element');
 my $collection2 = $database->get_collection('Mapping_Data');
 ##.
 
-
 ## mapping.data parsing(/R/mapping.data)
 ##
 
@@ -293,22 +292,22 @@ sub R_Graph{
 #  $R->send(qq`Time = c(${time})`);
   $R->send(qq`Data = data.frame( Time = c(${time}), Frequency = c(${freq}) )`);
   ##.
-  $R->send(qq`png(file="${file_from}", width=400, height=400, bg="#ffffff95", pointsize="20.5");`);
-  $R->send(q`par(mar=c(1.4,2.0,1.4,0),  family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
+  $R->send(qq`png(file="${file_from}", width=200, height=200, bg="#ffffff95", pointsize="10.5");`);
+  $R->send(q`par(mar=c(1.4,2.0,0.5,0),  family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
 
 
   
   if ($Graph_Type eq 'bar') {	## Bar plot
-    $R->send(q`barplot(Data$Frequency, col="black",border="white", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time, cex.axis=1.1)`);
+    $R->send(q`barplot(Data$Frequency, col="black",border="white", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`); # y axis options
-    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1)`);
+#    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1)`);
     
   }elsif ($Graph_Type eq 'line') { ## Line plot
 
-    $R->send(q`plot(Data$Frequency,  type="l", col="black", lty=1, lwd=20, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
+    $R->send(q`plot(Data$Frequency,  type="l", col="black", lty=1, lwd=14, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`); # y axis options
-    $R->send(q`axis(1, mgp=c(0,0.4,0), Data$Time, cex.axis=1.1)`); # x axis options
-    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1.2)`);
+    $R->send(q`axis(1, mgp=c(0,0.4,0), Data$Time, cex.axis=0.9)`); # x axis options
+#    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1.2)`);
 
   } elsif ($Graph_Type eq 'group') {
   }

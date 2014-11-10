@@ -227,6 +227,39 @@ function Generate_Marker(json,hierarchy,tile_type,map_id){
 function Query_Search(){
 
 
+var HeatMap_Data = {};
+
+ HeatMap_Data['東京都'] = { pos: [-21.0065030199706, -139.7542997543], num: 60 };
+ HeatMap_Data['神奈川県'] = { pos: [-27.8462366447398, -139.7542997543], num: 50 };
+ HeatMap_Data['大阪府'] = { pos: [-25.0751350097338, -119.41031941032], num: 70 };
+ HeatMap_Data['愛知県'] = { pos: [-25.0751350097338, -99.066339066339], num: 80 };
+ HeatMap_Data['埼玉県'] = { pos: [-54.7623277651706, -139.7542997543], num: 100 };
+ HeatMap_Data['hogen'] = { pos: [-54.7623277651706, -139.7542997543], num: 100 };
+ HeatMap_Data['hoge'] = { pos: [-54.7623277651706, -139.7542997543], num: 100 };
+  
+var key, pos, populations = [];
+ for (key in HeatMap_Data){
+ pos = new google.maps.LatLng(HeatMap_Data[key].pos[0], HeatMap_Data[key].pos[1]);
+ populations.push({
+  location : pos,
+  weight : HeatMap_Data[key].num
+ });
+
+ } 
+var heatmapOpts ={
+ radius:10,
+ dissipating:false,
+ gradient:['white','red', 'blue']
+};
+ var heatmap = new google.maps.visualization.HeatmapLayer(heatmapOpts);
+ heatmap.setData(populations);
+ heatmap.setMap(map);
+
+
+
+
+
+
                                       Ext.Ajax.request({
                                               method: 'POST',
                                                   url: './R/R.cgi',
