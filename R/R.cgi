@@ -292,7 +292,7 @@ sub R_Graph{
 #  $R->send(qq`Time = c(${time})`);
   $R->send(qq`Data = data.frame( Time = c(${time}), Frequency = c(${freq}) )`);
   ##.
-  $R->send(qq`png(file="${file_from}", width=200, height=200, bg="#ffffff95", pointsize="10.5");`);
+  $R->send(qq`png(file="${file_from}", width=200, height=200, bg="transparent", pointsize="10.5");`);
   $R->send(q`par(mar=c(1.4,2.0,0.5,0),  family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
 
 

@@ -100,7 +100,9 @@ USGSOverlay.prototype = new google.maps.OverlayView();
 
         // Add the element to the "overlayLayer" pane.
         var panes = this.getPanes();
-        panes.overlayLayer.appendChild(div);
+        panes.overlayShadow.appendChild(div);
+//        panes.overlayLayer.appendChild(div);
+
     };
     // [END region_attachment]
 
