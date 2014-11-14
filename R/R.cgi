@@ -105,13 +105,12 @@ while (<$file>) {
 	die "Not found $Query_ID in Database";
       }
 
-      
       while (my $record = $object->next) {
 	my @coords;
 
 	##created directory( e.g. /[ID]/00010/ ) for mapping datas
 	push @Mapping_Pathways, $$record{'Pathway'};
-	unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST) {
+	unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST){
 	  die "failed to create dir:./$Mapping_ID:$!";
 	}
 	#.
@@ -120,7 +119,7 @@ while (<$file>) {
 	if ($$record{'Shape'} eq 'Rectangle') { ## Shape that applies to this condition is very ""LOW""
 	  @coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
 
-	  
+  
 	} elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
 
 	  @coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
@@ -166,21 +165,25 @@ while (<$file>) {
     }
   }
 
-=cut	
-	
+=cut
       }
 
+    }elsif ($Query_ID =~ m/^([RK])/) { ## similar...
+      my $id = $1;
 
+      if($id eq 'K' ){
+	$object = $collection->find({'Meta.KEGG_ORTHOLOGY' => "$Query_ID"});
+      }else if($id eq 'R'){
+	$object = $collection->find({'Meta.KEGG_ORTHOLOGY' => "$Query_iD"});
+      }
       
-    }elsif ($Query_ID =~ m/^R/) { ## similar...
-      $object = $collection->find({'Meta.KEGG_REACTION' => "$Query_ID"});
-
+      #KEGG_REACTION
+      
       ## change => latlng じゃなくて xy値を持ってくる．
       while (my $record = $object->next){
 	my @coords;
 	push @Mapping_Pathways, $$record{'Pathway'};
 
-	
 	##created directory( e.g. /[ID]/00010/ ) for mapping datas
 	unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST) {
 	  die "failed to create dir:./$Mapping_ID:$!";
@@ -298,7 +301,7 @@ sub R_Graph{
 
   
   if ($Graph_Type eq 'bar') {	## Bar plot
-    $R->send(q`barplot(Data$Frequency, col="black",border="white", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
+    $R->send(q`barplot(Data$Frequency, col="#0000ff95",border="white", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`); # y axis options
 #    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1)`);
     
