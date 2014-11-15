@@ -10,7 +10,7 @@ var store = Ext.create('Ext.data.Store', {
 	type: 'ajax',
 	url: './Data/Info/Other/Org_Data.json',
 	reader: {
-	    type: 'json',
+	    type: 'json'
 	}
     }
 });
