@@ -71,7 +71,7 @@ USGSOverlay.prototype = new google.maps.OverlayView();
         this.bounds_ = bounds;
         this.image_ = image;
         this.map_ = map;
-//	window.alert(map);
+        // window.alert(map);
         // Define a property to hold the image's div. We'll
         // actually create this div upon receipt of the onAdd()
         // method so we'll leave it null for now.
