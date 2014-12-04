@@ -12,35 +12,31 @@ sub print_header{
 <html>
 <meta charset="utf-8">
 <head>
-<title>Pathway Projector</title>
-    <link href="./Scripts/css/default.css" rel="stylesheet">
-	<!-- jquery library Scripts //-->
+<title>Pathway Projector 2.0</title>
 
+<!-- Google Maps API ver 3.0 -->
+<link href="./Scripts/css/default.css" rel="stylesheet">
 <script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false&libraries=visualization" charset="utf-8"></script>
+
+<!-- jquery library Scripts //-->
 <script type="text/javascript" src="./Scripts/jquery/jquery-2.0.2.min.js"></script>
-    <link href='./Scripts/css/tabmenu.css' rel='stylesheet' type="text/css" media='all' />
 
-    <!-- Ext JS 4.0 -->
-
-<!--
+<!-- Ext JS 5.1 -->
 <link rel="stylesheet" type="text/css" href="ext/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
 <script type="text/javascript" src="ext/ext-all.js"></script>
-<script type="text/javascript" src="ext/build/packages/ext-theme-crisp/build/ext-theme-crisp.js"></script>
+<script type="text/javascript" src="./Ext.js"></script>
+<style type="text/css">
+<!--
+.x-form-field,td{
+font-size: 8pt!important;
+}
 -->
-
-
-<link rel="stylesheet" type="text/css" href="http://cdn.sencha.com/ext/gpl/5.0.0/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
-    <script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.0.0/build/ext-all.js"></script>
-
-
-<!--	<link rel="stylesheet" type="text/css" href="ExtJS/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
-       <script type="text/javascript" src="ExtJS/build/ext-all.js"></script>
--->
-
+</style>
+<!-- Pathway Projector code..[Code name -> Eureka] (Google maps scripts) -->
 <script>
     var cache_latlng_Tile;
     var cache_latlng_Category;
-    var cache_latlng_Subcategory;    
+    var cache_latlng_Subcategory;
     var Organism_ID = 'map';
     var Map_ID = ''; //define local mapType;
     var Hierarchy = 'Category';
@@ -59,8 +55,8 @@ sub print_header{
     var mapping_list;
     var Mapping_result_json;
     var Mapping_ID;
-    
-    Ext.onReady(function(){    // Load Ext JS 4.0 library before show Google maps Scripts.
+ 
+ Ext.onReady(function(){    // Load Ext JS 4.0 library before show Google maps Scripts.
 
 __START_HTML__
     
@@ -304,12 +300,13 @@ function Marker_Show(category_location){
 
 
     </script>
-<script type="text/javascript" src="./Ext.js"></script>
+
 	</head>
-    <body>
+    <body style="font-size:2px!important;">
+    <div id="sample_button" vlign="middle" style="position: absolute;top: 0.6%;right: 1.5%;"></div>
     </body>
     </html>
-	
+
 __END_HTML__
 
     return $end_html;
