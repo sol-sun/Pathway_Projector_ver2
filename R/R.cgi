@@ -89,7 +89,7 @@ foreach my $hash (@$InputData){
 	@coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
       }
       #.
-      $JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_latlng" : ["$coords[0]", "$coords[1]"], "ne_latlng" : ["$coords[2]", "$coords[3]"]},\n|;
+      $JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png", "sw_latlng" : ["$coords[0]", "$coords[1]"], "ne_latlng" : ["$coords[2]", "$coords[3]"]},\n|;
 
     }
 
@@ -148,7 +148,7 @@ foreach my $hash (@$InputData){
 	
       }
 
-      $JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${Query_ID}.png", "sw_latlng" : ["$sw_lat", "$sw_lng"], "ne_latlng" : ["$ne_lat", "$ne_lng"]},\n|;
+      $JSON{"$$record{'Pathway'}"} .=  qq|  \n\t{"Graph_Path" : "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png", "sw_latlng" : ["$sw_lat", "$sw_lng"], "ne_latlng" : ["$ne_lat", "$ne_lng"]},\n|;
       
       
     }

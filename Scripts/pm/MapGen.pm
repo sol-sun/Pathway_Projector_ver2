@@ -24,7 +24,6 @@ sub print_header{
 <!-- Ext JS 5.1 -->
 <link rel="stylesheet" type="text/css" href="ext/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
 <script type="text/javascript" src="ext/ext-all.js"></script>
-<script type="text/javascript" src="./Ext2.js"></script>
 <style type="text/css">
 <!--
 .x-form-field,td{
@@ -300,6 +299,7 @@ function Marker_Show(category_location){
 
 
     </script>
+<script type="text/javascript" src="./Ext2.js"></script>
     </head>
     <body style="font-size:2px!important;">
     <div id="sample_button" vlign="middle" style="position: absolute;top: 0.6%;right: 1.5%;"></div>

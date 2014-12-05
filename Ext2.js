@@ -26,10 +26,6 @@
 
 Ext.onReady(function(){
 
-//    Ext.Ajax.timeout = 120 * 1000;
-
-
-    
     /// Setting Panels, Grids and Other...
 
     //Set Main Tab Panel, Elements, Viewports and other...
@@ -188,18 +184,18 @@ Ext.onReady(function(){
 	autoDestroy: true,
 	model:'Mapping_Data',
 	data: [
-	    { name: 'K03043', type: '', t1: '10', t2: '49', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '10', 'txt': 'hoge', txt_size: '10', i_color: '' },
-	    { name: 'K03046', type: '', t1: '100',t2: '50', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '70', 'txt': 'hoge1', txt_size: '11', i_color: '' },
-	    { name: 'K03040', type: '', t1: '44', t2: '30', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '80', 'txt': 'hoge1', txt_size: '12', i_color: '' },
-	    { name: 'K03060', type: '', t1: '60', t2: '10',  t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '65', 'txt': 'hogehoge', txt_size: '13', i_color: '' },
-	    { name: 'K03017', type: '', t1: '60', t2: '45', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'perl', txt_size: '10', i_color: '' },
-	    { name: 'K03048', type: '', t1: '60', t2: '10', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'hoge', txt_size: '9', i_color: '' },
-	    { name: 'K03011', type: '', t1: '60', t2: '34', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'per', txt_size: '9.5', i_color: '' },
-	    { name: 'C00122', type: '', t1: '60', t2: '40', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'pf', txt_size: '9', i_color: '' },
-	    { name: 'K03014', type: '', t1: '60', t2: '68', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' },
-	    { name: 'K03000', type: '', t1: '60', t2: '48', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' },
-	    { name: '', type: '', t1: '60', t2: '23', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' },
-	    { name: '', type: '', t1: '60', t2: '86', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' }
+	    { name: 'K03043', type: 'Bar', t1: '10', t2: '49', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '10', 'txt': 'hoge', txt_size: '10', i_color: '' },
+	    { name: 'K03046', type: 'Bar', t1: '100',t2: '50', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '70', 'txt': 'hoge1', txt_size: '11', i_color: '' },
+	    { name: 'K03040', type: 'Bar', t1: '44', t2: '30', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '80', 'txt': 'hoge1', txt_size: '12', i_color: '' },
+	    { name: 'K03060', type: 'Bar', t1: '60', t2: '10',  t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '65', 'txt': 'hogehoge', txt_size: '13', i_color: '' },
+	    { name: 'K03017', type: 'Bar', t1: '60', t2: '45', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'perl', txt_size: '10', i_color: '' },
+	    { name: 'K03048', type: 'Bar', t1: '60', t2: '10', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'hoge', txt_size: '9', i_color: '' },
+	    { name: 'K03011', type: 'Bar', t1: '60', t2: '34', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'per', txt_size: '9.5', i_color: '' },
+	    { name: 'C00122', type: 'Bar', t1: '60', t2: '40', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'pf', txt_size: '9', i_color: '' },
+	    { name: 'K03014', type: 'Bar', t1: '60', t2: '68', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' },
+	    { name: 'K03000', type: 'Bar', t1: '60', t2: '48', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' },
+	    { name: '', type: 'Bar', t1: '60', t2: '23', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' },
+	    { name: '', type: 'Bar', t1: '60', t2: '86', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '66', 'txt': 'fhfh', txt_size: '10', i_color: '' }
 	]
     });
     
@@ -378,13 +374,7 @@ Ext.onReady(function(){
 	    selType: 'rowmodel'
 	},
 
-	plugins: [ Ext.create('Eureka.Mapping.grid.editing')
-//	     Ext.create('Ext.grid.plugin.RowEditing', {
-//		 clicksToEdit: 1,
-//		 autoCancel: false,
-//		 errorSummary: true
-//	     })
-	]
+	plugins: [ Ext.create('Eureka.Mapping.grid.editing')]
     });
 
     var mappingIndensity_grid =  Ext.create('Ext.grid.Panel',{
@@ -586,7 +576,7 @@ Ext.onReady(function(){
 			titlePosition: 2,
 			titleAlign: 'center'
 		    },
-		    frame: true,
+
 		    closable: true,
 		    modal: true,
 		    closeAction: 'hide',
@@ -594,31 +584,26 @@ Ext.onReady(function(){
 		    animateTarget: button,
 		    width: 750,
 		    height: 550,
-		    bodyPadding: 8,
 		    autoHeight: true,
 		    tools: [{type: 'pin'}],
-
 		    layout: 'fit',
 		    controler: 'tab-view',		    
 		    defaults: {
-			autoScroll: true
+			autoScroll: true,
+			border: 0
 		    },
-		    
+
 		    items: [{
 			xtype: 'tabpanel',
-			defaults: {autoWidth: true, autoHeight: true},
+			defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
 			items:[{
-			    title: 'Graph Mapping',
-			    bodyStyle:{"background-color":"#f4f4f4"},
-			    bodyBorder: true,
-			    
-			    items: Ext.create('Ext.form.FormPanel',{
-				frame: true,
 
+			    title: 'Graph Mapping',
+			    items: Ext.create('Ext.form.FormPanel',{
 				bodyStyle:{"background-color":"#f4f4f4"},
-				
+				border: 0,
 				items: [{
-				   
+
 				    xtype: 'combobox',
 				    fieldLabel: 'Organisms type',
 				    labelWidth: 300,
@@ -647,12 +632,11 @@ Ext.onReady(function(){
 									    
 			},{
 			    title: 'Indensity Mapping',
-			    bodyStyle:{"background-color":"#f4f4f4"},
-			    bodyBorder: true,
-			    
+
+			    defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
+
 			    items: Ext.create('Ext.form.FormPanel', {
-				frame: true,
-				
+				border: 0,
 				bodyStyle:{"background-color":"#f4f4f4"},
 				
 				items: [{
@@ -679,23 +663,20 @@ Ext.onReady(function(){
 
 			},{
 			    title: 'Label Mapping',
-			    items: mappingLabel_grid,
-			    bodyStyle:{"background-color":"#f4f4f4"}
+			    defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
+			    items: mappingLabel_grid
+
 			}]
 		    }],
 		    listeners: {
 			tabchange: 'onTabChange'
 		    },
 		    
-
-		    bodyStyle:{"background-color":"#f4f4f4"},
 		    buttonAlign: 'center',
 		    buttons: [{
 			width: 400,
 			text: 'Mapping All Grid Data!!',
 			scale: 'large',
-//			disabled: true,
-//			formBind: true,
 			layout:{
 			    pack: 'start'
 			},
@@ -716,27 +697,56 @@ Ext.onReady(function(){
 			    // POST Data to R.cgi for mapping
 			    Ext.Ajax.request({
 				method: 'POST',
-				url: '../Pathway_Projector_ver2/R/R.cgi',
+				url: 'R/R.cgi',
 				params: {data: sendJson},
 				cache: false,
 				success:
 				function(json){
+
+				    <!-- Mask in White for Mapping -->
+				    var Background_Mask = new google.maps.Rectangle({
+					strokeWeight: 0,
+					fillColor: 'white',
+					fillOpacity: 0.35,
+					map: map,
+					clickable: false,
+					bounds: new google.maps.LatLngBounds(
+					    new google.maps.LatLng(-90, -180),
+					    new google.maps.LatLng(90, 180))
+
+				    });
+
+				    <!-- display Graph image -->
+				    mapping_list = new google.maps.MVCArray();
+				    var data = Ext.JSON.decode(json.responseText);
 				    
+				    Mapping_result_json = data;
+
+				    Mapping_ID = data.Mapping_ID;
+				    
+				    for(var i=0; i< data.Data.map03020.length;i++){
+					
+					var img = 'R/'+data.Data.map03020[i].Graph_Path;
+					var sw = new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]);
+					var ne = new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1]);
+					var bound = new google.maps.LatLngBounds(sw, ne);
+					
+					Mapping_Data = new USGSOverlay(bound, img, map);
+					mapping_list.push(Mapping_Data);
+					
+				    }
 				}
 			    });
 			    //.
-
+			    
 			}
 		    }]
 		});
-
+	
 	    }
 	    button.dom.disabled = true;
-	    if(win.isVisible()) {
-		win.hide(this, function() {
-		    button.dom.disabled = false;
-		});
-	    }else {
+
+	    if(!win.isVisible()) {
 		win.show(this, function() {
 		    button.dom.disabled = false;
 		});

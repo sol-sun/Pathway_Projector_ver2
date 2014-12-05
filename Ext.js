@@ -258,7 +258,7 @@ Ext.onReady(function(){
 	
 	
 	var heatmap = new google.maps.visualization.HeatmapLayer(heatmapOpts);
-	//heatmap.setData(populations);
+	heatmap.setData(populations);
 	heatmap.setMap(map);
 	
 	
