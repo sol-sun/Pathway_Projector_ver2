@@ -716,25 +716,65 @@ Ext.onReady(function(){
 
 				    });
 
-				    <!-- display Graph image -->
-				    mapping_list = new google.maps.MVCArray();
+				    // display Graph image /
+				    
+				    mappingGraph_Data.overlay = new google.maps.MVCObject();
+				    mappingGraph_Data.overlay.set("visible", true);
 				    var data = Ext.JSON.decode(json.responseText);
 				    
-				    Mapping_result_json = data;
-
-				    Mapping_ID = data.Mapping_ID;
+				    mappingGraph_Data.data = data;
+				    mappingGraph_Data.id = data.Mapping_ID;
 				    
-				    for(var i=0; i< data.Data.map03020.length;i++){
+				    mappingGraph_Data.exist = true;
+				    
+				    for(var i=0; i< mappingGraph_Data.data.Data.map03020.length;i++){
 					
-					var img = 'R/'+data.Data.map03020[i].Graph_Path;
-					var sw = new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]);
-					var ne = new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1]);
-					var bound = new google.maps.LatLngBounds(sw, ne);
+					var img = 'R/'+mappingGraph_Data.data.Data.map03020[i].Graph_Path;
 					
-					Mapping_Data = new USGSOverlay(bound, img, map);
-					mapping_list.push(Mapping_Data);
+					var bound = new google.maps.LatLngBounds(
+					    new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]),
+					    new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1])
+					);
+					
+					// Explicitly call setMap on this overlay /
+//					mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map).setMap(map) );
+					var hoge = new mappingGraph(bound, img, map);
+
+					hoge.setMap(map);
+					hoge.bindTo("visible", mappingGraph_Data.overlay, "visible", true);
+				    }
+
+				    mappingGraph_Data.overlay.set("visible", false);
+				    
+				    /*
+
+				    // display Graph image /
+				    
+				    mappingGraph_Data.overlay = new google.maps.MVCArray();
+				    var data = Ext.JSON.decode(json.responseText);
+				    
+				    mappingGraph_Data.data = data;
+				    mappingGraph_Data.id = data.Mapping_ID;
+				    
+				    mappingGraph_Data.exist = true;
+				    
+				    for(var i=0; i< mappingGraph_Data.data.Data.map03020.length;i++){
+					
+					var img = 'R/'+mappingGraph_Data.data.Data.map03020[i].Graph_Path;
+					
+					var bound = new google.maps.LatLngBounds(
+					    new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]),
+					    new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1])
+					);
+					
+					// Explicitly call setMap on this overlay /
+					mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map).setMap(map) );
 					
 				    }
+				    
+				    */
+				    
+				    
 				}
 			    });
 			    //.
@@ -761,3 +801,75 @@ Ext.onReady(function(){
     
 });
 
+function mappingGraph(bounds, image, map) {
+
+    var mappingGraph;
+    mappingGraph = new google.maps.OverlayView();
+
+
+    // Explicitly call setMap on this overlay.
+    // this.setMap(map);
+
+
+
+    mappingGraph.onAdd = function() {
+
+    // Initialize all properties.
+    this.bounds_ = bounds;
+    this.image_ = image;
+    this.map_ = map;
+    // Define a property to hold the image's div. We'll
+    // actually create this div upon receipt of the onAdd()
+    // method so we'll leave it null for now.
+    this.div_ = null;
+
+
+	
+    var div = document.createElement('div');
+    div.style.borderStyle = 'none';
+    div.style.borderWidth = '0px';
+    div.style.position = 'absolute';
+
+    // Create the img element and attach it to the div.
+    var img = document.createElement('img');
+    img.src = this.image_;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.position = 'absolute';
+    div.appendChild(img);
+
+    this.div_ = div;
+
+    // Add the element to the "overlayLayer" pane.
+	var panes = this.getPanes();
+	panes.overlayShadow.appendChild(div);//    panes.overlayLayer.appendChild(div);
+    };
+    // [END region_attachment]
+    // [START region_drawing]
+mappingGraph.draw = function() {
+
+    // We use the south-west and north-east
+    // coordinates of the overlay to peg it to the correct position and size.
+    // To do this, we need to retrieve the projection from the overlay.
+    var overlayProjection = this.getProjection();
+
+    // Retrieve the south-west and north-east coordinates of this overlay
+    // in LatLngs and convert them to pixel coordinates.
+    // We'll use these coordinates to resize the div.
+    var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+    var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+
+    // Resize the image's div to fit the indicated dimensions.
+    var div = this.div_;
+    div.style.left = sw.x + 'px';
+    div.style.top = ne.y + 'px';
+    div.style.width = (ne.x - sw.x) + 'px';
+    div.style.height = (sw.y - ne.y) + 'px';
+};
+
+mappingGraph.onRemove = function() {
+    this.div_.parentNode.removeChild(this.div_);
+    this.div_ = null;
+};
+    return mappingGraph;    
+}

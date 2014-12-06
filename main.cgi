@@ -158,23 +158,28 @@ __html__
 			    window.setTimeout(function(){
 						  
 			    if(Hierarchy == 'Category'){
+
 				Tile_Type = json.Category;
 				Hierarchy = json.next_hierarchy;
 				map.setMapTypeId('tile');
 				maxzoom = json.max_zoom;
 				cache_latlng_Category = current_latlng;
+
 			    }else if(Hierarchy == 'Tile'){
 				Map_ID = json.Map_ID;
 				Hierarchy = 'Pathway';
 				map.setMapTypeId('pathway');
 				maxzoom = 4;
 				cache_latlng_Tile = current_latlng;
+                               <!-- Set Mapping objects -->
+                               
+
 			    }
 
 			    map.setZoom(1);
 			    map.panTo(new google.maps.LatLng(0,0));
 					      }, 650);
-			}						    
+			}
 		    },
 			});
 	}else if(current_maptype != 'category' && current_zoom == 0){
