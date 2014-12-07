@@ -56,7 +56,6 @@ font-size: 8pt!important;
     var Mapping_ID;
 
     var mappingGraph_Data ={
-       id: '',
        data: '',
        overlay: '',
        exist: false

@@ -96,7 +96,7 @@ Ext.onReady(function(){
 	region: 'center',
 	xtype: 'tabpanel',
 	//layoutOnTabChange: true,
-	
+	id: 'MainPanel',
 	items: [{
 	    title: 'Reference',
 	    html: '<div id="map-canvas"></div>'
@@ -560,7 +560,7 @@ Ext.onReady(function(){
     // Mapping Button -(click)> Show Mapping Window 
 
     var win,
-	button = Ext.get('sample_button');    
+	button = Ext.get('sample_button');
     Ext.define('Eureka.Button', { 
 	extend: 'Ext.Button',
 	text: 'Tools',
@@ -569,6 +569,13 @@ Ext.onReady(function(){
 
 	// Show Mapping Window
 	handler: function(){
+	    
+	    /*if(!win.isVisible()) {
+		win.show(this, function() {
+		    button.dom.disabled = false;
+		});
+	    }*/
+	    
 	    if(!win) {
 		win = Ext.create('widget.window', {
 		    title: 'Pathway Mapping',
@@ -682,124 +689,142 @@ Ext.onReady(function(){
 			},
 			scope: this,
 			handler: function(){
-			    var records = Mapping_Data.getRange();
-			    var submitData = [];
 
-			    Ext.each(records, function(item, idx){
-				// id element not necessary
-				delete item.data['id'];
-				// item.get to access a field in the record
-				submitData.push(item.data);
-			    });
-
-			    var sendJson = Ext.JSON.encode(submitData);
-			    
-			    // POST Data to R.cgi for mapping
-			    Ext.Ajax.request({
-				method: 'POST',
-				url: 'R/R.cgi',
-				params: {data: sendJson},
-				cache: false,
-				success:
-				function(json){
-
-				    <!-- Mask in White for Mapping -->
-				    var Background_Mask = new google.maps.Rectangle({
-					strokeWeight: 0,
-					fillColor: 'white',
-					fillOpacity: 0.35,
-					map: map,
-					clickable: false,
-					bounds: new google.maps.LatLngBounds(
-					    new google.maps.LatLng(-90, -180),
-					    new google.maps.LatLng(90, 180))
-
+			    Ext.MessageBox.confirm('Hey!', 'Are you submit?', function(btn){
+				
+				if(btn == 'yes'){
+				    
+				    var records = Mapping_Data.getRange();
+				    var submitData = [];
+				    
+				    Ext.each(records, function(item, idx){
+					// id element not necessary
+					delete item.data['id'];
+					// item.get to access a field in the record
+					submitData.push(item.data);
 				    });
 
-				    // display Graph image /
 				    
-				    mappingGraph_Data.overlay = new google.maps.MVCObject();
-				    mappingGraph_Data.overlay.set("visible", true);
-				    var data = Ext.JSON.decode(json.responseText);
+				    var sendJson = Ext.JSON.encode(submitData);
 				    
-				    mappingGraph_Data.data = data;
-				    mappingGraph_Data.id = data.Mapping_ID;
+				    win.close();
+				    Ext.get('MainPanel').mask('Create Mapping Data...', 'x-mask-loading');
+			    	    
+				    // POST Data to R.cgi for mapping
+				    Ext.Ajax.request({
+					method: 'POST',
+					url: 'R/R.cgi',
+					params: {data: sendJson},
+					cache: false,
+					success:
+					function(json){
+					    
+					    /** Mask in White for Mapping **/
+					    var Background_Mask = new google.maps.Rectangle({
+						strokeWeight: 0,
+						fillColor: 'white',
+						fillOpacity: 0.35,
+						map: map,
+						clickable: false,
+						bounds: new google.maps.LatLngBounds(
+						    new google.maps.LatLng(-90, -180),
+						    new google.maps.LatLng(90, 180))
+						
+					    });
 				    
-				    mappingGraph_Data.exist = true;
-				    
-				    for(var i=0; i< mappingGraph_Data.data.Data.map03020.length;i++){
-					
-					var img = 'R/'+mappingGraph_Data.data.Data.map03020[i].Graph_Path;
-					
-					var bound = new google.maps.LatLngBounds(
-					    new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]),
-					    new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1])
-					);
-					
-					// Explicitly call setMap on this overlay /
-//					mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map).setMap(map) );
-					var hoge = new mappingGraph(bound, img, map);
-
-					hoge.setMap(map);
-					hoge.bindTo("visible", mappingGraph_Data.overlay, "visible", true);
-				    }
-
-				    mappingGraph_Data.overlay.set("visible", false);
-				    
-				    /*
-
-				    // display Graph image /
-				    
-				    mappingGraph_Data.overlay = new google.maps.MVCArray();
-				    var data = Ext.JSON.decode(json.responseText);
-				    
-				    mappingGraph_Data.data = data;
-				    mappingGraph_Data.id = data.Mapping_ID;
-				    
-				    mappingGraph_Data.exist = true;
-				    
-				    for(var i=0; i< mappingGraph_Data.data.Data.map03020.length;i++){
-					
-					var img = 'R/'+mappingGraph_Data.data.Data.map03020[i].Graph_Path;
-					
-					var bound = new google.maps.LatLngBounds(
-					    new google.maps.LatLng(data.Data.map03020[i].sw_latlng[0], data.Data.map03020[i].sw_latlng[1]),
-					    new google.maps.LatLng(data.Data.map03020[i].ne_latlng[0], data.Data.map03020[i].ne_latlng[1])
-					);
-					
-					// Explicitly call setMap on this overlay /
-					mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map).setMap(map) );
-					
-				    }
-				    
-				    */
-				    
-				    
+					    /** display Graph image **/
+					    
+					    mappingGraph_Data.overlay = new google.maps.MVCArray();
+					    mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
+					    mappingGraph_Data.exist = true;
+					    
+					    /** Graph is only show in PATHWAY Layers **/
+					    
+					    Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
+					    Ext.get('MainPanel').unmask();
+					}
+				    });	    
+				}else{
 				}
+				
 			    });
-			    //.
 			    
 			}
 		    }]
 		});
-	
-	    }
-	    button.dom.disabled = true;
-
-	    if(!win.isVisible()) {
-		win.show(this, function() {
+		
+		win.show(this, function(){
 		    button.dom.disabled = false;
 		});
+		
+	    }else{
+		
+		if(!win.isVisible()) {
+		    win.show(this, function() {
+			button.dom.disabled = false;
+		    });
+		}
+		
 	    }
+	    
+	    
 	    
 	}
     });
-    
     
     Ext.create('Eureka.Viewport');
     Ext.create('Eureka.Button');
     
 });
+
+function Change_Hierarchy(hie, tile, pathw){
+
+
+    /** Graph mapping **/
+    // mappingGraph_Data.overlay is MVCArray class. MVCArray has graphs data 
+    if(mappingGraph_Data.exist === true){
+
+	
+	if( hie === 'Category' ){
+	    
+	}else if( hie === 'Tile' ){
+	    
+
+	    /** Delete Graph Images **/
+	    mappingGraph_Data.overlay.forEach(function(data,idx){
+		data.setMap(null);
+	    });
+	    mappingGraph_Data.overlay.clear();
+	    
+	}else if( hie === 'Pathway'){
+	    /** display graphs onto pathway. Occurs when Zoom up action **/	    
+	    
+	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Data.hasOwnProperty('map'+pathw) ){
+		for(var i=0; i< eval('mappingGraph_Data.data.Data.map'+pathw+'.length');i++){
+		    var img = 'R/'+ eval('mappingGraph_Data.data.Data.map'+pathw+'[i].Graph_Path');
+		    var bound = new google.maps.LatLngBounds(
+			new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[0]'),
+					       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[1]')
+					      ),
+			new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[0]'),
+					       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[1]')
+					      )
+		    );
+		    mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map));
+		}
+				
+		/** Explicitly call setMap on this overlay **/
+		mappingGraph_Data.overlay.forEach(function(data,idx){
+		    data.setMap(map);
+		});
+	    }
+	}
+
+	
+    }
+}
+
+
 
 function mappingGraph(bounds, image, map) {
 

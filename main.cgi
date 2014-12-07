@@ -108,8 +108,6 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
 				       if(json){
 					   if(Hierarchy=='Pathway'){
 					
-					   var main2 = '<iframe src="info.cgi?'+param+'&action=show_info'+'" height="330" width="480" scrolling="no" frameborder="0" allowtransparency="true"></iframe>';
-					   
 					   var infowindow = new google.maps.InfoWindow({
 						   content: json.html,
 						       position: new google.maps.LatLng(json.latlng[0],json.latlng[1])//LatLng
@@ -119,7 +117,7 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
 					   }
 
 				       }
-       //      if (currentInfoWindow)currentInfoWindow.close();
+
 				   },
 				       
 				       });
@@ -156,7 +154,8 @@ __html__
 			success: function(json){
 			if(json){			    
 			    window.setTimeout(function(){
-						  
+
+                        /** Change Layer **/
 			    if(Hierarchy == 'Category'){
 
 				Tile_Type = json.Category;
@@ -171,14 +170,17 @@ __html__
 				map.setMapTypeId('pathway');
 				maxzoom = 4;
 				cache_latlng_Tile = current_latlng;
-                               <!-- Set Mapping objects -->
-                               
 
 			    }
+ 
+   	  		   /** Graph Mapping displayed **/
+                           Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
 
 			    map.setZoom(1);
 			    map.panTo(new google.maps.LatLng(0,0));
 					      }, 650);
+
+
 			}
 		    },
 			});
@@ -212,6 +214,9 @@ __html__
 						      }
 
 						  }
+   	  		   /** Graph Mapping displayed **/
+                           Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
+
 					      },
 						  });
 
