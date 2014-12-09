@@ -21,8 +21,8 @@ font-size: 8pt!important;
 
 #loading-mask {
 position: absolute;
-top: 0;
-left: 0;
+//top: 0;
+//left: 0;
 width: 100%;
 height: 100%;
 background: #030303;
@@ -48,7 +48,7 @@ z-index: 20000;
 <body>
 <div id="loading-mask"></div>
  <div id="loading">
- <img src="Scripts/images/welcome.jpeg" >
+ <img src="Scripts/images/welcome.png" >
 </div>
 <!-- Google Maps API ver 3.0 -->
 <link href="./Scripts/css/default.css" rel="stylesheet">
@@ -309,6 +309,7 @@ __END_HTML__
 				maxZoom: 4,
 				minZoom: 0,
 				radius: 1738000,
+                                backgroundColor: '#030303',
 				name: 'Category'
 				   };
 
@@ -330,6 +331,7 @@ OPTION
 			    maxZoom: 6,
 			    minZoom: 0,
 			    radius: 1738000,
+                            backgroundColor: '#030303',
 			    name: 'Tile'
 			       };
 
@@ -351,6 +353,7 @@ OPTION
 			       maxZoom: 5,
 			       minZoom: 0,
 			       radius: 1738000,
+                               backgroundColor: '#030303',
 			       name: 'Pathway'
 				  };
 

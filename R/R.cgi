@@ -20,7 +20,6 @@ use JSON;
 ## R start set
 my $R = Statistics::R->new();
 $R->startR;
-
 my $start_time = Time::HiRes::time;
 ##.
 
@@ -57,7 +56,7 @@ foreach my $hash (@$InputData){
   my $query_id = $$hash{'name'};
 
   next if $query_id eq ''; # <- TASK: Error log
-  
+
   my $object;
   if($query_id =~ m/^[CDG]/){
 

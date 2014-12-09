@@ -441,7 +441,10 @@ Ext.onReady(function(){
 		dataIndex: 'i_color',
 		editor: {
 		    xtype: 'numberfield',
-		    allowBlank: true
+		    allowBlank: true,
+		    minValue: 0,
+		    maxValue: 100
+		    
 		}
 
 	    }
