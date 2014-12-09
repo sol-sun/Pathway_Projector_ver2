@@ -309,7 +309,7 @@ __END_HTML__
 				maxZoom: 4,
 				minZoom: 0,
 				radius: 1738000,
-                                backgroundColor: '#030303',
+                                backgroundColor: '#050204',
 				name: 'Category'
 				   };
 
@@ -331,7 +331,7 @@ OPTION
 			    maxZoom: 6,
 			    minZoom: 0,
 			    radius: 1738000,
-                            backgroundColor: '#030303',
+                            backgroundColor: '#050204',
 			    name: 'Tile'
 			       };
 
@@ -353,7 +353,7 @@ OPTION
 			       maxZoom: 5,
 			       minZoom: 0,
 			       radius: 1738000,
-                               backgroundColor: '#030303',
+                               backgroundColor: '#050204',
 			       name: 'Pathway'
 				  };
 
