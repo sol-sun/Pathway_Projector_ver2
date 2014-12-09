@@ -25,14 +25,19 @@ top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background: #ffffff;
+background: #030303;
 z-index: 1;
 }
 
 #loading {
-position: absolute;
-left: 35%;
-top: 35%;
+position: fixed;
+width:584px;
+height:294px;
+top:55%;
+left:50%;
+background: #030303;
+margin-left:-292px;
+margin-top:-197px;
 z-index: 20000;
 //transform: translate(-35%,-35%)
 }
@@ -42,22 +47,15 @@ z-index: 20000;
 </head>
 <body>
 <div id="loading-mask"></div>
-<div id="loading">
-   <span id="loading-message">Loading. Please wait...</span>
+ <div id="loading">
+ <img src="Scripts/images/welcome.jpeg" >
 </div>
-
-<script type="text/javascript">
- document.getElementById('loading-message').innerHTML = '<img src="ajax-loader-1.gif" />';
-</script>
-
 <!-- Google Maps API ver 3.0 -->
 <link href="./Scripts/css/default.css" rel="stylesheet">
 <script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false&libraries=visualization" charset="utf-8"></script>
 
 <!-- jquery library Scripts //-->
-<script type="text/javascript" src="./Scripts/jquery/jquery-2.0.2.min.js"></script>
-
-
+<script src="Scripts/js/jquery-2.0.2.min.js"></script>
 <!-- Ext JS 5.1 -->
 <link rel="stylesheet" type="text/css" href="ext/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
 <script type="text/javascript" src="ext/ext-all.js"></script>

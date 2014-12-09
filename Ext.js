@@ -35,7 +35,7 @@ Ext.onReady(function(){
 	
 	// Hide loading mask
 	loadingMask.setOpacity(0.9);
-	
+
 	loadingMask.animate({
 	    xy: loading.getXY(),
 	    width: loading.getWidth(),
@@ -45,6 +45,7 @@ Ext.onReady(function(){
 	    opacity: 0.1,
 	    easing: 'bounceOut'
 	});
+
     }, 300);
 
     
@@ -52,13 +53,20 @@ Ext.onReady(function(){
     /// Setting Panels, Grids and Other...
 
     //Set Main Tab Panel, Elements, Viewports and other...
-
-    Ext.define('Eureka.Mapping.grid.editing',{//create('Ext.grid.plugin.RowEditing', {
+    
+    Ext.define('Eureka.Mapping.grid.editing',{
 	extend: 'Ext.grid.plugin.RowEditing',
+	id: 'edit',
 	clicksToEdit: 1,
 	autoCancel: false,
 	errorSummary: true
     });
+    
+    var RowEditing = {
+	Graph_Mapping: Ext.create(Eureka.Mapping.grid.editing),
+	Intensity_Mapping: Ext.create(Eureka.Mapping.grid.editing),
+	Label_Mapping: Ext.create(Eureka.Mapping.grid.editing)
+    };
 
         // Organisms Data's Store, Proxy and Grids
     
@@ -153,7 +161,7 @@ Ext.onReady(function(){
 	layout: 'fit'
     });
 
-    var SouthPanel = Ext.create('Ext.panel.Panel', {
+/*    var SouthPanel = Ext.create('Ext.panel.Panel', {
 	region: 'south',
 	xtype: 'south',
 	html: '&nbsp&nbspWelcome to Pathway Projector ver2.0, produced by G-language Project.<br>',
@@ -162,11 +170,11 @@ Ext.onReady(function(){
 	height: 70,
 	minHeight: 10
     });
-
+*/
     Ext.define('Eureka.Viewport', {
 	extend: 'Ext.container.Viewport',
 	layout: 'border',
-	items: [CenterPanel, NorthPanel, EastPanel, SouthPanel],
+	items: [CenterPanel, NorthPanel, EastPanel],
 	renderTo: Ext.getBody()
     });
 
@@ -176,7 +184,7 @@ Ext.onReady(function(){
     
     
     // Mapping Data's Store, Proxy and Grids
-    //Grids ->  (Graph Mapping, Indensity Mapping, Label Mapping)
+    //Grids ->  (Graph Mapping, Intensity Mapping, Label Mapping)
     
     Ext.define('Mapping_Data', {
 	extend: 'Ext.data.Model',
@@ -397,10 +405,10 @@ Ext.onReady(function(){
 	    selType: 'rowmodel'
 	},
 
-	plugins: [ Ext.create('Eureka.Mapping.grid.editing')]
+	plugins: [ RowEditing.Graph_Mapping ]
     });
 
-    var mappingIndensity_grid =  Ext.create('Ext.grid.Panel',{
+    var mappingIntensity_grid =  Ext.create('Ext.grid.Panel',{
 	xtype: 'grouped-header-grid',
 	store: Mapping_Data,
 	columnLines: true,
@@ -432,7 +440,7 @@ Ext.onReady(function(){
 		hideable: false,
 		dataIndex: 'i_color',
 		editor: {
-		    xtype: 'textfield',
+		    xtype: 'numberfield',
 		    allowBlank: true
 		}
 
@@ -443,7 +451,7 @@ Ext.onReady(function(){
 	selModel:{
 	    selType: 'rowmodel'
 	},
-	plugins: Ext.create('Eureka.Mapping.grid.editing')
+	plugins: [ RowEditing.Intensity_Mapping ]
 
     });
 
@@ -530,7 +538,7 @@ Ext.onReady(function(){
 	    selType: 'rowmodel'
 	},
 	
-	plugins: Ext.create('Eureka.Mapping.grid.editing')
+	plugins: [ RowEditing.Label_Mapping ]
     });                      
 
     //.
@@ -661,7 +669,7 @@ Ext.onReady(function(){
 			    
 									    
 			},{
-			    title: 'Indensity Mapping',
+			    title: 'Intensity Mapping',
 
 			    defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
 
@@ -686,7 +694,7 @@ Ext.onReady(function(){
 				},{
 				    title: 'Input Experimental Data',
 				    name: 'data',
-				    items: mappingIndensity_grid,
+				    items: mappingIntensity_grid,
 				    width: 180
 				  }]
 			    })
@@ -713,65 +721,93 @@ Ext.onReady(function(){
 			scope: this,
 			handler: function(){
 
-			    Ext.MessageBox.confirm('Confirm', 'Are you Ready to Mapping?', function(btn){
-				
-				if(btn == 'yes'){
-				    
-				    var records = Mapping_Data.getRange();
-				    var submitData = [];
-				    
-				    Ext.each(records, function(item, idx){
-					// id element not necessary
-					delete item.data['id'];
-					// item.get to access a field in the record
-					submitData.push(item.data);
-				    });
 
-				    
-				    var sendJson = Ext.JSON.encode(submitData);
-				    
-				    win.close();
-				    Ext.get('MainPanel').mask('Create Mapping Data...', 'x-mask-loading');
-			    	    
-				    // POST Data to R.cgi for mapping
-				    Ext.Ajax.request({
-					method: 'POST',
-					url: 'R/R.cgi',
-					params: {data: sendJson},
-					cache: false,
-					success:
-					function(json){
-					    
-					    /** Mask in White for Mapping **/
-					    var Background_Mask = new google.maps.Rectangle({
-						strokeWeight: 0,
-						fillColor: 'white',
-						fillOpacity: 0.35,
-						map: map,
-						clickable: false,
-						bounds: new google.maps.LatLngBounds(
-						    new google.maps.LatLng(-90, -180),
-						    new google.maps.LatLng(90, 180))
-						
-					    });
-				    
-					    /** display Graph image **/
-					    
-					    mappingGraph_Data.overlay = new google.maps.MVCArray();
-					    mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
-					    mappingGraph_Data.exist = true;
-					    
-					    /** Graph is only show in PATHWAY Layers **/
-					    
-					    Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
-					    Ext.get('MainPanel').unmask();
-					}
-				    });	    
-				}else{
-				}
-				
-			    });
+			    /**  **/
+			    var editing =  {
+				state: false,
+				txt: String()
+			    };
 			    
+
+			    Object.keys(RowEditing).forEach (function(key){
+				if(eval('RowEditing.'+key+'.editing') === true ){
+				    
+				    editing.state = true;
+				    editing.txt = editing.txt+ '<li>' + key.replace('_', ' ') + '</li>';
+
+				    console.log('error');
+				}
+			    });
+			    if(editing.state === true){
+								    
+				    Ext.MessageBox.show({
+					title: 'Spreadsheet Error',
+					message: 'Row editing should be update and close.<br>Please check below tabpanels...<br><span style="font-weight: bolder">Tab: </span>' + '<blockquote><div style="background-color:#f5f5f5;font-family:\'sans-serif\';">' + editing.txt + '</div></blockquote>',
+					buttons: Ext.MessageBox.OK,
+					icon: Ext.MessageBox.ERROR
+
+				    });
+			    }
+			    else if(editing.state === false){
+				Ext.MessageBox.confirm('Confirm', 'Are you Ready to Mapping?', function(btn){
+				    
+				    if(btn == 'yes'){
+					
+					var records = Mapping_Data.getRange();
+					var submitData = [];
+					
+					Ext.each(records, function(item, idx){
+					    // id element not necessary
+					    delete item.data['id'];
+					    // item.get to access a field in the record
+					    submitData.push(item.data);
+					});
+					
+					
+					var sendJson = Ext.JSON.encode(submitData);
+					
+					win.close();
+					Ext.get('MainPanel').mask('Create Mapping Data...', 'x-mask-loading');
+			    		
+					// POST Data to R.cgi for mapping
+					Ext.Ajax.request({
+					    method: 'POST',
+					    url: 'R/R.cgi',
+					    params: {data: sendJson},
+					    cache: false,
+					    success:
+					    function(json){
+						
+						/** Mask in White for Mapping **/
+						var Background_Mask = new google.maps.Rectangle({
+						    strokeWeight: 0,
+						    fillColor: 'white',
+						    fillOpacity: 0.35,
+						    map: map,
+						    clickable: false,
+						    bounds: new google.maps.LatLngBounds(
+							new google.maps.LatLng(-90, -180),
+							new google.maps.LatLng(90, 180))
+						    
+						});
+						
+						/** display Graph image **/
+						
+						mappingGraph_Data.overlay = new google.maps.MVCArray();
+						mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
+						mappingGraph_Data.exist = true;
+						
+						/** Graph is only show in PATHWAY Layers **/
+						
+						Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
+						Ext.get('MainPanel').unmask();
+					    }
+					});	    
+				    }else{
+				    }
+				    
+				});
+			    }
 			}
 		    }]
 		});
