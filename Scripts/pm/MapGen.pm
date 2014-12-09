@@ -56,6 +56,7 @@ z-index: 20000;
 
 <!-- jquery library Scripts //-->
 <script src="Scripts/js/jquery-2.0.2.min.js"></script>
+
 <!-- Ext JS 5.1 -->
 <link rel="stylesheet" type="text/css" href="ext/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
 <script type="text/javascript" src="ext/ext-all.js"></script>
@@ -267,20 +268,7 @@ function Marker_Show(category_location){
 
 
     </script>
-<script type="text/javascript" src="./Ext.js"></script>
-
-<!--    </head>
-    <body style="font-size:2px!important;">
-    <div id="loading-mask" style=""></div>
-    <div id="loading">
-      <div class="loading-indicator">
-        <img src="loadinfo.net.gif" width="48" height="48" style="margin-right:8px;" align="absmiddle" />
-           Welcome to Pathway Projector ver 2.0<br>
-           Produced by G-language Project.
-      </div>
-    </div>
-    </div>-->
-
+    <script type="text/javascript" src="Ext.js"></script>
     <div id="sample_button" vlign="middle" style="position: absolute;top: 0.6%;right: 1.5%;"></div>
     </body>
     </html>
@@ -309,7 +297,6 @@ __END_HTML__
 				maxZoom: 4,
 				minZoom: 0,
 				radius: 1738000,
-                                backgroundColor: '#050204',
 				name: 'Category'
 				   };
 
@@ -331,7 +318,6 @@ OPTION
 			    maxZoom: 6,
 			    minZoom: 0,
 			    radius: 1738000,
-                            backgroundColor: '#050204',
 			    name: 'Tile'
 			       };
 
@@ -353,7 +339,6 @@ OPTION
 			       maxZoom: 5,
 			       minZoom: 0,
 			       radius: 1738000,
-                               backgroundColor: '#050204',
 			       name: 'Pathway'
 				  };
 

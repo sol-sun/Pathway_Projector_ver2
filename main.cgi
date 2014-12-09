@@ -59,7 +59,7 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
 	maxZoom : 6,
 	minZoom : 0,
 	streetViewControl: false,
-	backgroundColor: 'black',
+	backgroundColor: '#050204',
 	featureType: "all",
 	gridSize: 50,
 	mapTypeControl:false,
