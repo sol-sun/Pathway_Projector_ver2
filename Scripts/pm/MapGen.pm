@@ -31,13 +31,13 @@ z-index: 1;
 
 #loading {
 position: fixed;
-width:584px;
-height:294px;
+width:542px;
+height:486px;
 top:55%;
 left:50%;
 background: #030303;
-margin-left:-292px;
-margin-top:-197px;
+margin-left:-271px;
+margin-top:-243px;
 z-index: 20000;
 //transform: translate(-35%,-35%)
 }
@@ -48,7 +48,7 @@ z-index: 20000;
 <body>
 <div id="loading-mask"></div>
  <div id="loading">
- <img src="Scripts/images/welcome.png" >
+ <img src="Scripts/images/welcome2.png" >
 </div>
 <!-- Google Maps API ver 3.0 -->
 <link href="./Scripts/css/default.css" rel="stylesheet">
@@ -89,8 +89,13 @@ z-index: 20000;
        data: '',
        overlay: '',
        exist: false
-     }
+     };
 
+    var mappingIntensity_Data = {
+      data: '',
+      overlay: '',
+      exist: false
+    };
 
  Ext.onReady(function(){    // Load Ext JS 4.0 library before show Google maps Scripts.
 

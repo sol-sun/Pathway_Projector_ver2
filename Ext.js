@@ -130,7 +130,7 @@ Ext.onReady(function(){
 	id: 'MainPanel',
 	items: [{
 	    title: 'Reference',
-	    html: '<div id="map-canvas"></div>'
+	    html: '<div id="map-canvas" style="margin: 0; padding: 0; height: 100%;"></div>'
 	    
 	},{
 	    title: 'Organism Selection',
@@ -780,12 +780,21 @@ Ext.onReady(function(){
 					    cache: false,
 					    success:
 					    function(json){
-						
+
+						if(mappingGraph_Data.exist === true){
+						    /** Delete Graph Images **/
+						    mappingGraph_Data.overlay.forEach(function(data,idx){
+							data.setMap(null);
+						    });
+						    mappingGraph_Data.overlay.clear();
+						    
+						}
+
 						/** Mask in White for Mapping **/
 						var Background_Mask = new google.maps.Rectangle({
 						    strokeWeight: 0,
 						    fillColor: 'white',
-						    fillOpacity: 0.35,
+						    fillOpacivty: 0.35,
 						    map: map,
 						    clickable: false,
 						    bounds: new google.maps.LatLngBounds(
@@ -793,16 +802,23 @@ Ext.onReady(function(){
 							new google.maps.LatLng(90, 180))
 						    
 						});
-						
+
 						/** display Graph image **/
-						
+
 						mappingGraph_Data.overlay = new google.maps.MVCArray();
 						mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
 						mappingGraph_Data.exist = true;
 						
 						/** Graph is only show in PATHWAY Layers **/
+
+
+						/** display Intensity rectangle **/
+
+						mappingIntensity_Data.exist = true;
+						
 						
 						Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
+						
 						Ext.get('MainPanel').unmask();
 					    }
 					});	    
@@ -852,7 +868,6 @@ function Change_Hierarchy(hie, tile, pathw){
 	    
 	}else if( hie === 'Tile' ){
 	    
-
 	    /** Delete Graph Images **/
 	    mappingGraph_Data.overlay.forEach(function(data,idx){
 		data.setMap(null);
@@ -863,29 +878,69 @@ function Change_Hierarchy(hie, tile, pathw){
 	    /** display graphs onto pathway. Occurs when Zoom up action **/	    
 	    
 	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Data.hasOwnProperty('map'+pathw) ){
-		for(var i=0; i< eval('mappingGraph_Data.data.Data.map'+pathw+'.length');i++){
-		    var img = 'R/'+ eval('mappingGraph_Data.data.Data.map'+pathw+'[i].Graph_Path');
-		    var bound = new google.maps.LatLngBounds(
-			new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[0]'),
-					       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[1]')
-					      ),
-			new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[0]'),
-					       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[1]')
-					      )
-		    );
-		    mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map));
-		}
-				
-		/** Explicitly call setMap on this overlay **/
-		mappingGraph_Data.overlay.forEach(function(data,idx){
-		    data.setMap(map);
-		});
-	    }
-	}
 
+		var bound;
+		
+		for(var i=0; i< eval('mappingGraph_Data.data.Data.map'+pathw+'.length');i++){
+		    
+		    /** Graph Mapping : Display Objects **/
+		    if( eval('mappingGraph_Data.data.Data.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
+			
+			bound = new google.maps.LatLngBounds(
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[0]'),
+						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[1]')
+						  ),
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[0]'),
+						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[1]')
+						  )
+			);
+			
+			var img = 'R/'+ eval('mappingGraph_Data.data.Data.map'+pathw+'[i].Graph_Path');
+			mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map) );
+			
+			/** Explicitly call setMap on this overlay **/
+			mappingGraph_Data.overlay.forEach(function(data,idx){
+			    data.setMap(map);
+			});
+			
+		    }
+		    
+		    /** Intensity Mapping : Display Objects **/
+		    if( eval('mappingGraph_Data.data.Data.map'+pathw+'[i]').hasOwnProperty('i_color') ){
+			bound = new google.maps.LatLngBounds(
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
+						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
+						  ),
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
+						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
+						  )
+			);
+
+			mappingGraph_Data.overlay.push( new google.maps.Rectangle({
+			    bounds: bound,
+			    map: map,
+			    fillColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+			    fillOpacity: 0.8,
+			    strokeColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+			    
+			    strokeOpacity: 0.7,
+			    strokeWeight: 100,
+			    clickable: false
+			    
+			}));
+			
+		    }
+		}
+		
+	    }
+	    
+	    
+	}
 	
     }
+    
 }
+
 
 
 
@@ -961,3 +1016,4 @@ mappingGraph.onRemove = function() {
 };
     return mappingGraph;    
 }
+

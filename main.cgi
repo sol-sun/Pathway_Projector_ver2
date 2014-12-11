@@ -233,19 +233,17 @@ __html__
 // like the standard Google map tiles.
 function getNormalizedCoord(coord, zoom) {
 
-    
-    
     var y = coord.y;
     var x = coord.x;
 
   // tile range in one direction range is dependent on zoom level
   // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
-  var tileRange = 1 << zoom;
+//  var tileRange = 1 << zoom;
 
   // don't repeat across y-axis (vertically) and x-axis (horizocally)
-  if (y < 0 || y >= tileRange || x < 0 || x >= tileRange) {
-    return null;
-  }
+//  if (y < 0 || y >= tileRange || x < 0 || x >= tileRange) {
+//    return null;
+//  }
 
   return {
     x: x,
