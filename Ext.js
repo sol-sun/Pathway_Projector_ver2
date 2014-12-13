@@ -787,14 +787,15 @@ Ext.onReady(function(){
 							data.setMap(null);
 						    });
 						    mappingGraph_Data.overlay.clear();
+						    mappingGraph_Data.mask.setMap(null);
 						    
 						}
 
 						/** Mask in White for Mapping **/
-						var Background_Mask = new google.maps.Rectangle({
+						mappingGraph_Data.mask = new google.maps.Rectangle({
 						    strokeWeight: 0,
 						    fillColor: 'white',
-						    fillOpacivty: 0.35,
+						    fillOpacivty: 0.8,
 						    map: map,
 						    clickable: false,
 						    bounds: new google.maps.LatLngBounds(
@@ -865,6 +866,7 @@ function Change_Hierarchy(hie, tile, pathw){
 
 	
 	if( hie === 'Category' ){
+	    mappingGraph_Data.mask.setMap(null);
 	    
 	}else if( hie === 'Tile' ){
 	    
@@ -873,11 +875,14 @@ function Change_Hierarchy(hie, tile, pathw){
 		data.setMap(null);
 	    });
 	    mappingGraph_Data.overlay.clear();
+	    mappingGraph_Data.mask.setMap(null);
 	    
 	}else if( hie === 'Pathway'){
 	    /** display graphs onto pathway. Occurs when Zoom up action **/	    
-	    
+	    	    
 	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Data.hasOwnProperty('map'+pathw) ){
+
+		mappingGraph_Data.mask.setMap(map);
 
 		var bound;
 		

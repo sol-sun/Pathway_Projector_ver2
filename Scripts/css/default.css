@@ -30,34 +30,43 @@ html, body {
 
 
 #panel {
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  margin-left: -180px;
-  z-index: 5;
-  background-color: #fff;
-  padding: 5px;
-  border: 1px solid #999;
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    margin-left: -180px;
+    z-index: 5;
+    background-color: #fff;
+    padding: 5px;
+    border: 1px solid #999;
 }
-     .bar {
-      fill: steelblue;
-      }
+.bar {
+    fill: steelblue;
+}
 
-      .bar:hover {
-      fill: brown; graph bar color set (if hover)
-      }
+.bar:hover {
+    fill: brown; graph bar color set (if hover)
+}
 
-      .axis {
-      font: 8px sans-serif;
-      }
+.axis {
+    font: 8px sans-serif;
+}
 
-      .axis path,
-      .axis line {
-      fill: none;
-      stroke: #000;
-      shape-rendering: crispEdges;
-      }
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
 
-      .x.axis path {
-      display: none;
-      }
+.x.axis path {
+    display: none;
+}
+
+
+.customLoadMask {
+
+    filter: alpha(opacity=70);
+    opacity: .7;
+    background: black;
+}
+

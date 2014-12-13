@@ -20,7 +20,7 @@ print $q->header();
 print Generator::print_header;#<html> .. <script type="test/javascript">
 
 #set Map options;( "$Org_ID(e.g. hsa, eco)","$Map_ID(e.g. 00010, 01100)", "$Tile_Type(e.g. ./Metabolism, ./Human Disease)" );
-my ($Category_Map_Options,$Tile_Map_Options, $Pathway_Map_Options) = Generator::Map_Options($Org_ID, $Map_ID, $Tile_Type);
+my ($Category_Map_Options,$Tile_Map_Options, $Pathway_Map_Options, $Subcategory_Map_Options) = Generator::Map_Options($Org_ID, $Map_ID, $Tile_Type);
 
 my $ajax = '$.ajax';
 my $var =  '$';
@@ -29,10 +29,15 @@ print << "__html__";
 $Category_Map_Options;
 $Tile_Map_Options;
 $Pathway_Map_Options;
+$Subcategory_Map_Options;
 
 var Category_Map = new google.maps.ImageMapType(Category_Map_Options);
+/** for Metabolism **/
+var Subcategory_Map = new google.maps.ImageMapType(Subcategory_Map_Options);
 var Tile_Map = new google.maps.ImageMapType(Tile_Map_Options);
 var Pathway_Map = new google.maps.ImageMapType(Pathway_Map_Options);
+
+
 var maxzoom;
 
 var action = '&tile='+Tile_Type+'&action=initialize';
@@ -65,7 +70,7 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
 	mapTypeControl:false,
 	disableDefaultUI: true,
 	mapTypeControlOptions: {
-	mapTypeIds: ['Category','Tile','Pathway']
+	mapTypeIds: ['Category','Tile','Pathway','SubCategory']
 	}
     };
 
@@ -75,6 +80,7 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
     map.mapTypes.set('category', Category_Map);
     map.mapTypes.set('tile', Tile_Map);
     map.mapTypes.set('pathway', Pathway_Map);
+    map.mapTypes.set('subcategory', Subcategory_Map);
     map.setMapTypeId('category');
 
     var currentInfoWindow = null;
@@ -87,8 +93,7 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
 				      //.
 				      var current_lat = event.latLng.lat(), current_lng = event.latLng.lng();
 
-
-
+//window.alert(current_lat+', '+current_lng+', '+Tile_Type+', '+Subcategory);
 				      var param = 'lat='+ current_lat +'&lng='+ current_lng  +'&hie='+ Hierarchy + '&mapID=' + Map_ID;
 //show img for mapping
 				      if(Mapping_ID){
@@ -119,15 +124,13 @@ function initialize(/*JSON_LatLng,Markers_LatLng JSON_LatLng JSON data*/ ) {
 				       }
 
 				   },
-				       
 				       });
-			   
 				  });
 
 __html__
 
     print << "__html__";
-
+var hoge = 0;
     // changed maptype tile2local, local2tile
     google.maps.event.addListener(map, 'zoom_changed', function(){
 	
@@ -140,8 +143,14 @@ __html__
 	var current_lat = current_latlng.lat(), current_lng = current_latlng.lng();
 	
 	if(current_maptype != 'pathway' && current_zoom >= maxzoom){ // JSON_LatLng[3]
+
+
+        Ext.get('map-canvas').mask();
+        //mask background convert to black
+        \$("div[id*='ext-element']").css('background', 'black');
+
 	    if (currentInfoWindow)currentInfoWindow.close();
-	    var param = 'lat='+ current_lat +'&lng='+ current_lng  +'&hie='+ Hierarchy + '&mapID=' + Map_ID + '&tile=' + Tile_Type;
+	    var param = 'lat='+ current_lat +'&lng='+ current_lng  +'&hie='+ Hierarchy + '&mapID=' + Map_ID + '&tile=' + Tile_Type + '&subcat=' + Subcategory;
 	    var action = '&action=Zoom_UP';
 	    var ajax = ${ajax}({
 		    
@@ -155,17 +164,39 @@ __html__
 			if(json){			    
 			    window.setTimeout(function(){
 
-                        /** Change Layer **/
+                            /** Change Layer **/
+
 			    if(Hierarchy == 'Category'){
+                              if(json.next_hierarchy == 'Tile'){
 
 				Tile_Type = json.Category;
+                                Subcategory = '';
 				Hierarchy = json.next_hierarchy;
 				map.setMapTypeId('tile');
 				maxzoom = json.max_zoom;
 				cache_latlng_Category = current_latlng;
 
-			    }else if(Hierarchy == 'Tile'){
+                               }else if(json.next_hierarchy == 'Subcategory'){
+                                 
+                                 Tile_Type = json.Category;
+                                 Hierarchy = json.next_hierarchy;
+                                 map.setMapTypeId('subcategory');
+                                 maxzoom = json.max_zoom;
+                                 cache_latlng_Category = current_latlng;
+
+                               }
+			    }else if(Hierarchy == 'Subcategory'){
+//                  Tile_Type = 'Metabolism';
+                               Subcategory = '/'+json.Subcategory;
+                               Hierarchy = 'Tile';
+                               map.setMapTypeId('tile');
+                               cache_latlng_Subcategory = current_latlng;
+                               maxzoom = json.max_zoom;
+                             //if( maxzoom < 5){maxzoom = maxzoom + 1}
+                            }else if(Hierarchy == 'Tile'){
 				Map_ID = json.Map_ID;
+
+                                Tile_Type = json.Category;
 				Hierarchy = 'Pathway';
 				map.setMapTypeId('pathway');
 				maxzoom = 4;
@@ -178,14 +209,26 @@ __html__
 
 			    map.setZoom(1);
 			    map.panTo(new google.maps.LatLng(0,0));
+                          Ext.get('map-canvas').unmask();
 					      }, 650);
 
 
 			}
+
 		    },
+                    error: function(){
+                          Ext.get('map-canvas').unmask();
+                    }
+
 			});
 	}else if(current_maptype != 'category' && current_zoom == 0){
 	    if (currentInfoWindow)currentInfoWindow.close();
+
+        Ext.get('map-canvas').mask();
+
+        //mask background convert to black
+        \$("div[id*='ext-element']").css('background', 'black');
+
 	    window.setTimeout(function(){
 				  var param = 'lat='+ current_lat +'&lng='+ current_lng  +'&hie='+ Hierarchy + '&mapID=' + Map_ID + '&tile=' + Tile_Type;
 				  var action = '&action=Zoom_OUT';
@@ -198,25 +241,42 @@ __html__
 						  data: param + action,
 						  success: function(json){
 						  if(json){
+
 						      if(current_maptype == 'pathway'){
-							  Hierarchy = 'Tile';
-							  maxzoom = json.max_zoom;
-							  map.setMapTypeId('tile');
-							  map.setZoom(maxzoom - 1);
-							  map.setCenter(cache_latlng_Tile);
+
+                                                           Hierarchy = 'Tile';
+ 							   maxzoom = json.max_zoom;
+							   map.setMapTypeId('tile');
+							   map.setZoom(maxzoom - 1);
+							   map.setCenter(cache_latlng_Tile);
 
 						      }else if(current_maptype == 'tile'){
-							  Hierarchy = 'Category';
-							  maxzoom = json.Information.Zoom_Level;
-							  map.setMapTypeId('category');
-							  map.setZoom(maxzoom -1);
-							  map.setCenter(cache_latlng_Category);
-						      }
+							  if(Tile_Type == 'Metabolism'){
+                                                            Hierarchy = 'Subcategory';
+                                                            maxzoom = 5;
+                                                            map.setMapTypeId('subcategory');
+                                                            map.setZoom(maxzoom -1);
+                                                            map.setCenter(cache_latlng_Subcategory);
+
+                                                          }else{
+                                                           Hierarchy = 'Category';
+							   maxzoom = json.Information.Zoom_Level;
+							   map.setMapTypeId('category');
+							   map.setZoom(maxzoom -1);
+							   map.setCenter(cache_latlng_Category);
+                                                         }
+						      }else if(current_maptype == 'subcategory'){
+                                                           Hierarchy = 'Category';
+							   maxzoom = json.Information.Zoom_Level;
+							   map.setMapTypeId('category');
+							   map.setZoom(maxzoom -1);
+							   map.setCenter(cache_latlng_Category);
+                                                     }
 
 						  }
    	  		   /** Graph Mapping displayed **/
                            Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
-
+                            Ext.get('map-canvas').unmask();
 					      },
 						  });
 
@@ -236,14 +296,14 @@ function getNormalizedCoord(coord, zoom) {
     var y = coord.y;
     var x = coord.x;
 
-  // tile range in one direction range is dependent on zoom level
-  // 0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
-//  var tileRange = 1 << zoom;
+//   tile range in one direction range is dependent on zoom level
+//   0 = 1 tile, 1 = 2 tiles, 2 = 4 tiles, 3 = 8 tiles, etc
+  var tileRange = 1 << zoom;
 
-  // don't repeat across y-axis (vertically) and x-axis (horizocally)
-//  if (y < 0 || y >= tileRange || x < 0 || x >= tileRange) {
-//    return null;
-//  }
+//   don't repeat across y-axis (vertically) and x-axis (horizocally)
+    if (y < 0 || y >= tileRange || x < 0 || x >= tileRange) {
+    return null;
+  }
 
   return {
     x: x,

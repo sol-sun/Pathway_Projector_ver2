@@ -19,6 +19,8 @@ sub print_header{
 font-size: 8pt!important;
 }
 
+
+
 #loading-mask {
 position: absolute;
 //top: 0;
@@ -41,7 +43,6 @@ margin-top:-243px;
 z-index: 20000;
 //transform: translate(-35%,-35%)
 }
-
 -->
 </style>
 </head>
@@ -55,7 +56,7 @@ z-index: 20000;
 <script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false&libraries=visualization" charset="utf-8"></script>
 
 <!-- jquery library Scripts //-->
-<script src="Scripts/js/jquery-2.0.2.min.js"></script>
+<script src="Scripts/js/jquery-2.1.1.min.js"></script>
 
 <!-- Ext JS 5.1 -->
 <link rel="stylesheet" type="text/css" href="ext/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all.css">
@@ -69,6 +70,7 @@ z-index: 20000;
     var Organism_ID = 'map';
     var Map_ID = ''; //define local mapType;
     var Hierarchy = 'Category';
+    var Subcategory = ''; //define subcategory for metabolism hierarchy;
     var Tile_Type = 'Genetic_Information_Processing';
     var url = './info.cgi?'+'tile='+Tile_Type+'&action=initialize';
     var JSON_LatLng;
@@ -88,6 +90,7 @@ z-index: 20000;
     var mappingGraph_Data ={
        data: '',
        overlay: '',
+       mask: '',
        exist: false
      };
 
@@ -265,7 +268,7 @@ function Marker_Show(category_location){
 	    });
 	}
     }
-    
+
 }
 
 
@@ -306,10 +309,29 @@ __END_HTML__
 				   };
 
 OPTION
-    
-    #Tile mode Options
-    
-    my $Tile_Map_Options = << "OPTION";
+	#Subcategory mode Options
+	my $Subcategory_Map_Options = << "OPTION";
+      var Subcategory_Map_Options = {
+			    getTileUrl: function(coord, zoom){
+				    var normalizedCoord = getNormalizedCoord(coord, zoom);
+				    if (!normalizedCoord){
+					return null;
+				    }
+				    var bound = Math.pow(2, zoom);
+				    return './Data/Maps/'+Tile_Type+'/Subcategory/level' + zoom + '-' + normalizedCoord.x + '-' + normalizedCoord.y + '.png';
+				},
+			    tileSize: new google.maps.Size(256, 256),
+			    maxZoom: 6,
+			    minZoom: 0,
+			    radius: 1738000,
+			    name: 'Subcategory'
+       };
+
+OPTION
+	
+	#Tile mode Options
+	
+	my $Tile_Map_Options = << "OPTION";
     	var Tile_Map_Options = {
 			    getTileUrl: function(coord, zoom){
 				    var normalizedCoord = getNormalizedCoord(coord, zoom);
@@ -317,7 +339,7 @@ OPTION
 					return null;
 				    }
 				    var bound = Math.pow(2, zoom);
-				    return './Data/Maps/'+Tile_Type+'/Tile/level' + zoom + '-' + normalizedCoord.x + '-' + normalizedCoord.y + '.png';
+				    return './Data/Maps/'+Tile_Type+Subcategory+'/Tile/level' + zoom + '-' + normalizedCoord.x + '-' + normalizedCoord.y + '.png';
 				},
 			    tileSize: new google.maps.Size(256, 256),
 			    maxZoom: 6,
@@ -327,9 +349,9 @@ OPTION
 			       };
 
 OPTION
-
-    #Pathway mode Options
-    my $Pathway_Map_Options = << "OPTION";
+	
+	#Pathway mode Options
+	my $Pathway_Map_Options = << "OPTION";
 	
 	var Pathway_Map_Options = {
 			       getTileUrl: function(coord, zoom){
@@ -349,7 +371,7 @@ OPTION
 
 OPTION
 
-    return ($Tile_Map_Options,$Pathway_Map_Options,$Category_Map_Options);
+    return ($Tile_Map_Options,$Pathway_Map_Options,$Category_Map_Options,$Subcategory_Map_Options);
 
 }
 

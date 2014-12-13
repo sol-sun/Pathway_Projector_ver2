@@ -21,7 +21,10 @@ my $organism = $cgi->param("organism") || "map"; # Organism name
 my $cpd = $cgi->param("data"); # CID
 my $path;
 my $hierarchy = $cgi->param("hie");
-my $tile = $cgi->param("tile");
+my $tile = $cgi->param("tile"); # Tile_Type
+my $subcategory = $cgi->param("subcat"); # Subcategory
+$subcategory =~ s/^\///g;
+
 my $map_id = $cgi->param("mapID");
 my $mapping_id = $cgi->param("mapping");
 
@@ -37,43 +40,66 @@ my $pass = ${pit_get("MongoDB")}{'password'} or die 'password not found';
 
 ##  Show InfoWindow Mode
 if($action eq 'initialize'){
-    
+
     my $find = qq(
 		  db.Category.find({"Information.Zoom_Level":{\$exists:"true"}}).forEach(function(record){printjson(record);});
 		 );
     my $result = `/usr/local/bin/mongo Carpesys -u $user -p $pass --quiet --eval '$find'`;
-    $result =~ s/ObjectId\(\"([^\"]+)\"\)/\"$1\"/g;#error todo 
-    $result =~ s/NumberLong\(([^\)]+)\)/$1/g;#error todo
-    print $result; 
-    
+
+    $result =~ s/ObjectId\(\"([^\"]+)\"\)/\"$1\"/g;#error todo -> node.js
+    $result =~ s/NumberLong\(([^\)]+)\)/$1/g;#error todo -> node.js
+    print $result;
+
     exit;
 }elsif($action eq 'Zoom_UP'){
+
     my $find;
     if($hierarchy eq 'Category'){ #Category => Tile
-	$find = qq(
+      $find = qq(
 		      db.Category.find({\$and:[{"latlng.sw_lat":{\$lte:$lat}},{"latlng.ne_lat":{\$gte:$lat}},{"latlng.sw_lng":{\$lte:$lng}},{"latlng.ne_lng":{\$gte:$lng}}]}).limit(1).forEach(function(record){printjson(record);});
 		     );
+    }elsif($hierarchy eq 'Subcategory'){
+      $find = qq(
+		      db.Subcategory.find({\$and:[{"latlng.sw_lat":{\$lte:$lat}},{"latlng.ne_lat":{\$gte:$lat}},{"latlng.sw_lng":{\$lte:$lng}},{"latlng.ne_lng":{\$gte:$lng}}]}).limit(1).forEach(function(record){printjson(record);});
+                );
+
     }elsif($hierarchy eq 'Tile'){ #Tile => Pathway
+      if($tile eq 'Metabolism'){
+
+	$find = qq(
+		      db.Pathway_Maps.find({\$and:[{"LatLng.sw_lat":{\$lte:$lat}},{"LatLng.ne_lat":{\$gte:$lat}},{"LatLng.sw_lng":{\$lte:$lng}},{"LatLng.ne_lng":{\$gte:$lng}},{"SubCategory":"$subcategory"}]}).limit(1).forEach(function(record){printjson(record);});
+		     );
+
+      }else{
+
 	$find = qq(
 		      db.Pathway_Maps.find({\$and:[{"LatLng.sw_lat":{\$lte:$lat}},{"LatLng.ne_lat":{\$gte:$lat}},{"LatLng.sw_lng":{\$lte:$lng}},{"LatLng.ne_lng":{\$gte:$lng}},{"Category":"$tile"}]}).limit(1).forEach(function(record){printjson(record);});
 		     );
+      }
+
     }
-	my $result = `/usr/local/bin/mongo Carpesys -u $user -p $pass --quiet --eval '$find'`;    
+    my $result = `/usr/local/bin/mongo Carpesys -u $user -p $pass --quiet --eval '$find'`;    
     $result =~ s/ObjectId\(\"([^\"]+)\"\)/\"$1\"/g;#error todo 
     $result =~ s/NumberLong\(([^\)]+)\)/$1/g;#error todo
     print $result;
     
-}elsif($action eq 'Zoom_OUT'){
+  }elsif($action eq 'Zoom_OUT'){
     my $find;
     if($hierarchy eq 'Pathway'){
-	$find = qq(
+      ## if $tile eq Metabolism => find
+      $find = qq(
 		   db.Category.find({"Category":"$tile"}).limit(1).forEach(function(record){printjson(record);});
 		  );
     }elsif($hierarchy eq 'Tile'){
-	$find = qq(
+      $find = qq(
+		   db.Category.find({"Information.Zoom_Level":{\$exists:true}}).limit(1).forEach(function(record){printjson(record);});
+		  );
+    }elsif($hierarchy eq 'Subcategory'){
+      $find = qq(
 		   db.Category.find({"Information.Zoom_Level":{\$exists:true}}).limit(1).forEach(function(record){printjson(record);});
 		  );
     }
+    
     my $result = `/usr/local/bin/mongo Carpesys -u $user -p $pass --quiet --eval '$find'`;
     $result =~ s/ObjectId\(\"([^\"]+)\"\)/\"$1\"/g;#error todo 
     $result =~ s/NumberLong\(([^\)]+)\)/$1/g;#error todo
@@ -162,6 +188,7 @@ if($action eq 'initialize'){
 	}
 	my $Pathway_Links;
 	my %category_links;
+=pod	
 	for my$hash(@{$$json{'Meta'}{'Pathway_Links'}}){
 	    
 
@@ -203,7 +230,7 @@ if($action eq 'initialize'){
 	    $info_HTMLs .= qq(<b>Other&nbspPathways</b>:<br>$square);
 	}
 ##.	
-	
+=cut	
 	$info_HTMLs .= qq(</div>);
 
 	##get center latlng

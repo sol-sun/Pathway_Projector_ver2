@@ -49,6 +49,7 @@ unless (mkdir ("./$Mapping_ID", 0755) or $! == Errno::EEXIST){
 ##.
 
 my %JSON;
+open my $out, '>>', 'test';
 
 foreach my $hash (@$InputData){
 
@@ -114,15 +115,15 @@ foreach my $hash (@$InputData){
     ## .latlng
 
     $object = $collection->find({'Meta.cpd' => "$query_id"});
-
-    unless($object->next){ ##Error Process. Occurs when the MongoDB search failed.
-      $R->stopR();
-      die "Not found $query_id in Database"; #<- TASK: Error log
-    }
+    print $out Dumper  $object;
+#    unless($object->next){ ##Error Process. Occurs when the MongoDB search failed.
+#      $R->stopR();
+#      die "Not found $query_id in Database"; #<- TASK: Error log
+#    }
 
     while (my $record = $object->next){
-      my $push2JSON = {};
 
+      my $push2JSON = {};
       my @coords;
 
       ##created directory( e.g. /[ID]/00010/ ) for mapping datas
@@ -131,34 +132,72 @@ foreach my $hash (@$InputData){
 	die "failed to create dir:./$Mapping_ID:$!";
       }
       #.
+      
+      my ($sw_x, $sw_y, $ne_x, $ne_y);
+      my ($sw_lat, $sw_lng, $ne_lat, $ne_lng);
+
       ## Get latlng data
       if ($$record{'Shape'} eq 'Rectangle') { ## Shape that applies to this condition is very ""LOW""
-	@coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
+#	@coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
+	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
+
+	if($Mapping_Switch{'Intensity_Mapping'} == 1){
+	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
+	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
+	}
+
+	my $rect_width = $ne_x - $sw_x;
+	my $rect_height = $sw_y - $ne_y;
+	if($rect_width < $rect_height){
+	  $sw_x = $ne_x - $rect_width;
+	  $sw_x += ($rect_height/2) - ($rect_width/2);
+	  $ne_x =  $sw_x + ($rect_width);
+	  $ne_y = $sw_y - ($rect_width);
+	}else{
+	  $sw_x = $ne_x - $rect_width;
+	  $sw_x += ($rect_width/2) - ($rect_height/2);
+	  $ne_x =  $sw_x + ($rect_height);
+	  $ne_y = $sw_y - ($rect_height);
+	}
+
+	($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+	 ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+
+	
+	
       } elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
-	@coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+#	@coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+	my ($x, $y) = ($$record{'xy'}{'x'}, $$record{'xy'}{'y'});
+
+	if($Mapping_Switch{'Intensity_Mapping'} == 1){
+	  $push2JSON->{'i_LatLng'}->{'c_latlng'} = [&Generator::xy2latlng($x, $y)];
+	}
+
+	($sw_x, $sw_y) = ($x - 185, $y + 185); ## 地図全体の大きさが必要になるかも。今のところは、system関数でサイズを図る。
+	($ne_x, $ne_y) = ($x + 185, $y - 185); ## 
+	my $rect_width = $ne_x - $sw_x;
+	$ne_y = $sw_y -  $rect_width;
+
+	 ($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+	 ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+
       }
       #.
 
-      
-      $push2JSON->{'sw_latlng'} =  ["$coords[0]", "$coords[1]"];
-      $push2JSON->{'ne_latlng'} = ["$coords[2]", "$coords[3]"];
-      
-      
+      $push2JSON->{'sw_latlng'} = ["$sw_lat", "$sw_lng"];
+      $push2JSON->{'ne_latlng'} = ["$ne_lat", "$ne_lng"];
 
       if($Mapping_Switch{'Intensity_Mapping'} == 1){
 	$push2JSON->{'i_color'} = $element_color;
       }
 
-      $push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
+      if($Mapping_Switch{'Graph_Mapping'} == 1){
+	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
+      }
+  
 
       push @{ $JSON{"Data"}{'map'.$$record{'Pathway'}} }, $push2JSON;
 
-#      push @{ $JSON{"Data"}{'map'.$$record{'Pathway'}} }, {
-#							   "Graph_Path" => "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png",
-#							   "sw_latlng" => ["$coords[0]", "$coords[1]"],
-#							   "ne_latlng" => ["$coords[2]", "$coords[3]"]
-#							  };
-      
     }
 
   }elsif ($query_id =~ m/^([RK])/){
@@ -175,7 +214,6 @@ foreach my $hash (@$InputData){
       my $push2JSON = {};
       my @coords;
       push @Mapping_Pathways, $$record{'Pathway'};
-      
       ##created directory( e.g. /[ID]/00010/ ) for mapping datas
       unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST) {
 	die "failed to create dir:./$Mapping_ID:$!";
@@ -184,9 +222,8 @@ foreach my $hash (@$InputData){
 
       my ($sw_x, $sw_y, $ne_x, $ne_y);
       my ($sw_lat, $sw_lng, $ne_lat, $ne_lng);
-      
+
       if ($$record{'Shape'} eq 'Rectangle') {
-	
 	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
 
 
@@ -194,7 +231,6 @@ foreach my $hash (@$InputData){
 	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
 	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
 	}
-
 	##これを足がかりとする．他の変更は一斉に．
 	##latlngをxyに変換し画像サイズに設定の上またlatlng値に戻す．
 	## swを固定する．つまり右上にはみ出た画像を貼ることになる．
@@ -288,7 +324,34 @@ print $insert;
 
 print encode_json(\%JSON);
 #$insert = decode_json($insert);
+=pod
+C00031,100
+C00103,98
+C00631,95
+C00267,87
+C00221,85
+C00111,80
+C01172,77
+C00668,74
+C00118,68
+C05345,65
+C00197,60
+C00236,50
+C00186,40
+C01159,35
+C00469,30
+C05125,23
+C00084,20
+C01136,18
+C05378,17
+C02827,15
+C06189,13
+C06186,10
+C06187,7
+C06188,5
+C01451,3
 
+=cut
 
 sub R_Graph{
   my $R_script;
@@ -311,7 +374,7 @@ sub R_Graph{
     
   }elsif ($Graph_Type eq 'line') { ## Line plot
 
-    $R->send(q`plot(Data$Frequency,  type="l", col="black", lty=1, lwd=11, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
+    $R->send(q`plot(Data$Frequency,  type="l", col="black", lty=1, lwd=9, pch=20, bty="n", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n",xaxt="n", ann=F )`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`); # y axis options
     $R->send(q`axis(1, mgp=c(0,0.4,0), Data$Time, cex.axis=0.9)`); # x axis options
 #    $R->send(qq`title(main="${Query_ID}", line=0.4, cex.main=1.2)`);
