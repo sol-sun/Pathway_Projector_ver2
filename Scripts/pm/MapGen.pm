@@ -53,7 +53,7 @@ z-index: 20000;
 </div>
 <!-- Google Maps API ver 3.0 -->
 <link href="./Scripts/css/default.css" rel="stylesheet">
-<script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false&libraries=visualization" charset="utf-8"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.0&sensor=false&libraries=geometry" charset="utf-8"></script>
 
 <!-- jquery library Scripts //-->
 <script src="Scripts/js/jquery-2.1.1.min.js"></script>
@@ -304,7 +304,7 @@ __END_HTML__
 				tileSize: new google.maps.Size(256, 256),
 				maxZoom: 4,
 				minZoom: 0,
-				radius: 1738000,
+				
 				name: 'Category'
 				   };
 
@@ -323,7 +323,7 @@ OPTION
 			    tileSize: new google.maps.Size(256, 256),
 			    maxZoom: 6,
 			    minZoom: 0,
-			    radius: 1738000,
+
 			    name: 'Subcategory'
        };
 
@@ -344,7 +344,7 @@ OPTION
 			    tileSize: new google.maps.Size(256, 256),
 			    maxZoom: 6,
 			    minZoom: 0,
-			    radius: 1738000,
+
 			    name: 'Tile'
 			       };
 
@@ -365,7 +365,7 @@ OPTION
 			       tileSize: new google.maps.Size(256, 256),
 			       maxZoom: 5,
 			       minZoom: 0,
-			       radius: 1738000,
+
 			       name: 'Pathway'
 				  };
 

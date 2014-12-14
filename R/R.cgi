@@ -49,7 +49,6 @@ unless (mkdir ("./$Mapping_ID", 0755) or $! == Errno::EEXIST){
 ##.
 
 my %JSON;
-open my $out, '>>', 'test';
 
 foreach my $hash (@$InputData){
 
@@ -86,7 +85,6 @@ foreach my $hash (@$InputData){
   ##.
 
   ## Intensity Mapping
-
   my $element_color;
   my $i_color = $$hash{'i_color'};
   if( $i_color =~ /^[0-9]+$/ ){
@@ -115,11 +113,12 @@ foreach my $hash (@$InputData){
     ## .latlng
 
     $object = $collection->find({'Meta.cpd' => "$query_id"});
-    print $out Dumper  $object;
-#    unless($object->next){ ##Error Process. Occurs when the MongoDB search failed.
-#      $R->stopR();
-#      die "Not found $query_id in Database"; #<- TASK: Error log
-#    }
+
+
+    #    unless($object->next){ ##Error Process. Occurs when the MongoDB search failed.
+    #      $R->stopR();
+    #      die "Not found $query_id in Database"; #<- TASK: Error log
+    #    }
 
     while (my $record = $object->next){
 
@@ -145,7 +144,7 @@ foreach my $hash (@$InputData){
 	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
 	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
 	}
-
+	
 	my $rect_width = $ne_x - $sw_x;
 	my $rect_height = $sw_y - $ne_y;
 	if($rect_width < $rect_height){
@@ -166,15 +165,17 @@ foreach my $hash (@$InputData){
 	
 	
       } elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
-#	@coords =  ( "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" , "$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}" );
+
 	my ($x, $y) = ($$record{'xy'}{'x'}, $$record{'xy'}{'y'});
 
 	if($Mapping_Switch{'Intensity_Mapping'} == 1){
-	  $push2JSON->{'i_LatLng'}->{'c_latlng'} = [&Generator::xy2latlng($x, $y)];
+	  $push2JSON->{'i_LatLng'}->{'center_latlng'} = [&Generator::xy2latlng($x, $y)];
+	  $push2JSON->{'i_LatLng'}->{'perimeter_latlng'} = [&Generator::xy2latlng($x+28, $y+28)];
 	}
 
-	($sw_x, $sw_y) = ($x - 185, $y + 185); ## 地図全体の大きさが必要になるかも。今のところは、system関数でサイズを図る。
-	($ne_x, $ne_y) = ($x + 185, $y - 185); ## 
+
+	($sw_x, $sw_y) = ($x - 180, $y + 180); ## 地図全体の大きさが必要になるかも。今のところは、system関数でサイズを図る。
+	($ne_x, $ne_y) = ($x + 180, $y - 180); ## 
 	my $rect_width = $ne_x - $sw_x;
 	$ne_y = $sw_y -  $rect_width;
 

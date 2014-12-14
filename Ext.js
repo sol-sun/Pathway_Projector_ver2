@@ -795,7 +795,7 @@ Ext.onReady(function(){
 						mappingGraph_Data.mask = new google.maps.Rectangle({
 						    strokeWeight: 0,
 						    fillColor: 'white',
-						    fillOpacivty: 0.8,
+						    fillOpacivty: 0.9,
 						    map: map,
 						    clickable: false,
 						    bounds: new google.maps.LatLngBounds(
@@ -803,21 +803,15 @@ Ext.onReady(function(){
 							new google.maps.LatLng(90, 180))
 						    
 						});
-
-						/** display Graph image **/
-
+						mappingGraph_Data.mask.setMap(null);
+						
+						/** Setting Graph image & Intensity rectangle **/
+						/** Graph is only show in PATHWAY Layers **/
 						mappingGraph_Data.overlay = new google.maps.MVCArray();
 						mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
 						mappingGraph_Data.exist = true;
 						
-						/** Graph is only show in PATHWAY Layers **/
 
-
-						/** display Intensity rectangle **/
-
-						mappingIntensity_Data.exist = true;
-						
-						
 						Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
 						
 						Ext.get('MainPanel').unmask();
@@ -868,6 +862,10 @@ function Change_Hierarchy(hie, tile, pathw){
 	if( hie === 'Category' ){
 	    mappingGraph_Data.mask.setMap(null);
 	    
+	}else if( hie === 'Subcategory' ){
+
+	    mappingGraph_Data.mask.setMap(null);
+	    
 	}else if( hie === 'Tile' ){
 	    
 	    /** Delete Graph Images **/
@@ -912,28 +910,59 @@ function Change_Hierarchy(hie, tile, pathw){
 		    
 		    /** Intensity Mapping : Display Objects **/
 		    if( eval('mappingGraph_Data.data.Data.map'+pathw+'[i]').hasOwnProperty('i_color') ){
-			bound = new google.maps.LatLngBounds(
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
-						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
-						  ),
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
-						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
-						  )
-			);
 
-			mappingGraph_Data.overlay.push( new google.maps.Rectangle({
-			    bounds: bound,
-			    map: map,
-			    fillColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
-			    fillOpacity: 0.8,
-			    strokeColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+			if ( eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
+
+			    bound = new google.maps.LatLngBounds(
+				new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
+						       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
+						      ),
+				new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
+						       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
+						      )
+			    );
 			    
-			    strokeOpacity: 0.7,
-			    strokeWeight: 100,
-			    clickable: false
-			    
-			}));
+			    mappingGraph_Data.overlay.push( new google.maps.Rectangle({
+				bounds: bound,
+				map: map,
+				fillColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+				fillOpacity: 0.8,
+				strokeColor: 'black',
+				strokeOpacity: 0.9,
+				strokeWeight: 1,
+				clickable: false
+				
+			    }));
+			}else{
 			
+			    var [center_lat, center_lng, perimeter_lat, perimeter_lng] = [
+				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
+				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
+				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
+				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
+			    ];
+
+			    /** calculate distance between Compound center  **/
+			    /** calculate length of a line segment from circle(Compound) center to circle(Compound) perimeter. **/
+			    
+			    var radius = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(center_lat, center_lng), new google.maps.LatLng(perimeter_lat, perimeter_lng));
+			    console.log(radius);
+			    
+			    console.log(center_lat+', '+center_lng);
+			    mappingGraph_Data.overlay.push( new google.maps.Circle({
+				strokeColor: 'black',
+				strokeOpacity: 0.8,
+				strokeWeight: 1,
+				fillColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+				fillOpacity: 0.8,
+				map: map,
+				clickable: false,
+				center:  new google.maps.LatLng(center_lat, center_lng),
+				radius: radius
+			    }));
+
+
+			}
 		    }
 		}
 		
