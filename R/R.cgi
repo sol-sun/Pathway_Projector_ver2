@@ -19,7 +19,6 @@
 ## Base Samples (Combo Box)
 
 # Color mode (Same as Graph Mapping)
-#
 
 $\ = "\n";
 use strict;
@@ -117,47 +116,32 @@ foreach my $hash (@$InputData){
   my $element_color;
   my $backgroundColor;
   if(exists($$Option{'color'})){
-
-      my @from_color = (255, 0, 0);
-      my @to_color = (0, 255, 0);
-      ## analysis input time series data
-      $stat->clear();
-      $stat->add_data(@frequency);
-      ##
-      
-      if($$Option{'fillto'} eq 'element'){
-	$element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
-	$element_color = '#'.$element_color;
-
-	
-	$backgroundColor = "\'transparent\'";
-	$Mapping_Switch{'Intensity_Mapping'} = 1; ## fill element
-	
-      }elsif($$Option{'fillto'} eq 'graph'){
-	my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
-	$backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
-	$Mapping_Switch{'Intensity_Mapping'} = 2; ## fill Graph
-
-      }
-  }
-  ##.
-
-
-=pod
-
-  my $i_color = $$hash{'i_color'};
-  if( $i_color =~ /^[0-9]+$/ ){
+    
     my @from_color = (255, 0, 0);
     my @to_color = (0, 255, 0);
-    $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $i_color/100) + $from_color[$_]} (0..2) ) );
-    $element_color = '#'.$element_color;
-    $Mapping_Switch{'Intensity_Mapping'} = 1;
+    ## analysis input time series data
+    $stat->clear();
+    $stat->add_data(@frequency);
+    ##
+    
+    if($$Option{'fillto'} eq 'element'){
+      $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
+	$element_color = '#'.$element_color;
+      
+      
+      $backgroundColor = "\'transparent\'";
+      $Mapping_Switch{'Intensity_Mapping'} = 1; ## fill element
+      
+    }elsif($$Option{'fillto'} eq 'graph'){
+      my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
+      $backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
+      $Mapping_Switch{'Intensity_Mapping'} = 2; ## fill Graph
+      
+    }
   }else{
-    ## Error: color is unvalid format
+    $backgroundColor = "\'transparent\'";
   }
   ##.
-
-=cut
 
 
   ## Occurs when all mapping switches are zero
@@ -257,7 +241,7 @@ foreach my $hash (@$InputData){
 	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
       }
 
-      push @{ $JSON{"Data"}{'map'.$$record{'Pathway'}} }, $push2JSON;
+      push @{ $JSON{"Pathway"}{'map'.$$record{'Pathway'}} }, $push2JSON;
 
     }
 
@@ -324,7 +308,7 @@ foreach my $hash (@$InputData){
 	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
       }
 
-      push @{ $JSON{"Data"}{'map'.$$record{'Pathway'}} }, $push2JSON;
+      push @{ $JSON{"Pathway"}{'map'.$$record{'Pathway'}} }, $push2JSON;
     }
   }
 

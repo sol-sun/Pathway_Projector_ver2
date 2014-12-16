@@ -163,16 +163,6 @@ Ext.onReady(function(){
 	layout: 'fit'
     });
 
-/*    var SouthPanel = Ext.create('Ext.panel.Panel', {
-	region: 'south',
-	xtype: 'south',
-	html: '&nbsp&nbspWelcome to Pathway Projector ver2.0, produced by G-language Project.<br>',
-	collapsed: true,
-	collapsible: true,
-	height: 70,
-	minHeight: 10
-    });
-*/
     Ext.define('Eureka.Viewport', {
 	extend: 'Ext.container.Viewport',
 	layout: 'border',
@@ -182,22 +172,130 @@ Ext.onReady(function(){
 
     //.
 
-
-    
     
     // Mapping Data's Store, Proxy and Grids
     //Grids ->  (Graph Mapping, Intensity Mapping, Label Mapping)
     
-    Ext.define('Mapping_Data', {
+    Ext.define('Model.Graph_Mapping', {
 	extend: 'Ext.data.Model',
-	fields: ['name', 'type', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10', 'l_color', 'org', 'l_color_size', 'txt', 'txt_size', 'i_color'],
+	fields: ['name', 'type', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10', 'l_color', 'org', 'l_color_size', 'txt', 'txt_size', 'sample_data',],
 	proxy: {
 	    type: 'memory'
 	    //LocalStrage ウィンドウ閉じても保存される
 	    //SessionStrage そのタブが閉じれば、終わる
 	}
     });
+    Ext.define('Model.Comparison_Mapping', {
+	extend: 'Ext.data.Model',
+	fields: ['name', 'd1', 'd2', 'd3'],
+	proxy: {
+	    type: 'memory'
+	}
+	
+    });
 
+/*
+    
+    C00160
+    C00022
+    C00186
+    C01089
+    C05984
+    C00122
+    C00042
+    C05123
+    C01879
+    C00233
+    C00489
+    C00049
+    C00149
+    C01620
+    C00346
+    C00026
+    C01601
+    C00366
+    C02768
+    C01571
+    C00417
+    C08261
+    C00311
+    C00158
+    C00879
+    C00199
+    C00668
+    C05382
+    C00037
+    C00041
+    C02261
+    C00114
+    C00065
+    C06772
+    C00519
+    C00791
+    C00429
+    C00148
+    C00581
+    C00719
+    C00183
+    C00188
+    C00245
+    C05127
+    C00178
+    C01879
+    C00408
+    C01157
+    C00300
+    C00407
+    C00123
+    C00152
+    C00077
+    C00049
+    C00346
+    C10172
+    C01181
+    C00064
+    C00047
+    C00025
+    C00073
+    C00135
+    C01551
+    C00637
+    C00956
+    C00318
+    C00079
+    C01152
+    C02693
+    C00062
+    C00327
+    C00082
+    C02571
+    C00078
+    C00055
+    C00670
+    C00051
+    
+    */
+
+    var Store_ComparisonMapping = Ext.create('Ext.data.Store', {
+	autoDestroy: true,
+	model: 'Model.Comparison_Mapping',
+	data: [
+	    {name: 'C00160', d1: '141.8909007', d2: '136.1222015', d3: ''},
+	    {name: 'C00022', d1: '303.9381533', d2: '449.8584867', d3: ''},
+	    {name: 'C00186', d1: '9618.045089', d2: '4837.15842', d3: ''},
+	    {name: 'C01089', d1: '272.4729123', d2: '164.3975999', d3: ''},
+	    {name: 'C05984', d1: '12.90675905', d2: '10.20320348', d3: ''},
+	    {name: 'C00122', d1: '24.36531939', d2: '21.82358637', d3: ''},
+	    {name: 'C00042', d1: '68.51417566', d2: '52.71919963', d3: ''},
+	    {name: 'C05123', d1: '5.785689302', d2: '4.236823234', d3: ''},
+	    {name: 'C01879', d1: '59.39798164', d2: '76.23664497', d3: ''},
+	    {name: 'C00233', d1: '14.36023289', d2: '20.81370041', d3: ''},
+	    {name: 'C00489', d1: '11.81170265', d2: '9.984701673', d3: ''},
+	    {name: 'C00049', d1: '48.76429619', d2: '32.51665661', d3: ''},
+	    {name: 'C00149', d1: '76.62489568', d2: '70.46005558', d3: ''}
+	]
+    });
+    
     //test
     Ext.define('Eureka.Create.data.Store', {
 	extend: 'Ext.data.Store',
@@ -213,9 +311,9 @@ Ext.onReady(function(){
 
     //
     
-    var Mapping_Data = Ext.create('Ext.data.Store', {
+    var Store_GraphMapping = Ext.create('Ext.data.Store', {
 	autoDestroy: true,
-	model:'Mapping_Data',
+	model:'Model.Graph_Mapping',
 	data: [
 	    { name: 'K03043', type: 'Bar', t1: '10', t2: '49', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '10', 'txt': 'hoge', txt_size: '10', i_color: '' },
 	    { name: 'K03046', type: 'Bar', t1: '100',t2: '50', t3: '10', t4: '49', t5: '10', t6: '49', t7: '10', t8: '49',  t9: '10', t10: '49', l_color:'blue', l_color_size: '70', 'txt': 'hoge1', txt_size: '11', i_color: '' },
@@ -247,13 +345,14 @@ Ext.onReady(function(){
     
     var mappingGraph_grid =  Ext.create('Ext.grid.Panel',{
 	xtype: 'grouped-header-grid',
-	store: Mapping_Data,
-	columnLines: true,
+	store: Store_GraphMapping,
+	coplumnLines: true,
 	autoScroll: false,
 	viewConfig: {
 	    markDirty: false
 	},
-	autoWidth: true,
+	//	autoWidth: true,
+	width: 665,
 	height: 310,
 
 	columns: [
@@ -285,120 +384,122 @@ Ext.onReady(function(){
 
 			sortable: false,
 			dataIndex: 't1',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
+
 			}
 		    },{
 			text: '2',
 
 			sortable: false,
 			dataIndex: 't2',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '3',
 
 			sortable: false,
 			dataIndex: 't3',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
+
 			}
 		    },{
 			text: '4',
 
 			sortable: false,
 			dataIndex: 't4',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '5',
 
 			sortable: false,
 			dataIndex: 't5',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '6',
 
 			sortable: false,
 			dataIndex: 't6',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '7',
 
 			sortable: false,
 			dataIndex: 't7',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '8',
 
 			sortable: false,
 			dataIndex: 't8',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '9',
 
 			sortable: false,
 			dataIndex: 't9',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    },{
 			text: '10',
 
 			sortable: false,
 			dataIndex: 't10',
-			width: 57,
+			width: 50,
 			editor:{
-			    xtype: 'numberfield',
+			    xtype: 'textfield',
 			    allowBlank: true,
-			    minValue: 0,
-			    maxValue: 100
+			    regex: /[0-9]+/,
+			    regexText: 'This field allow only Numeric input'
 			}
 		    }]
 	    }
@@ -411,16 +512,23 @@ Ext.onReady(function(){
 	plugins: [ RowEditing.Graph_Mapping ]
     });
 
+
+
+    
     var mappingIntensity_grid =  Ext.create('Ext.grid.Panel',{
-	xtype: 'grouped-header-grid',
-	store: Mapping_Data,
+	xtype: 'grouped-header-grid',	
+	store: Store_ComparisonMapping,
+	
 	columnLines: true,
+	autoScroll: false,
+
+	width: 340,
+	height: 390,
+
 	viewConfig: {
 	    markDirty: false
 	},
-	width: 190,
-//	autoWidth: true,
-	height: 310,
+
 
 	columns: [
 	    {xtype: 'rownumberer'},
@@ -437,18 +545,68 @@ Ext.onReady(function(){
 		
 	    },
 	    {
-		text: 'Color',
-		width: 75,
-		sortable: false,
-		hideable: false,
-		dataIndex: 'i_color',
-		editor: {
-		    xtype: 'numberfield',
-		    allowBlank: true,
-		    minValue: 0,
-		    maxValue: 100
+		text: 'Sample',
+
+		columns: [{
+
+		    sortable: false,
+		    width: 80,
+		    dataIndex: 'd1',
+		    editor: {
+			xtype: 'textfield',
+			allowBlank: true,
+			regex: /[0-9]+/,
+			regexText: 'This field allow only Numeric input'
+
+		    },
+		    items: {
+			xtype: 'textfield',
+			flex: 1,
+			margin: 2
+		    }
 		    
-		}
+
+		},{
+
+		    width: 80,
+		    sortable: false,
+		    hideable: false,
+		    dataIndex: 'd2',
+		    editor: {
+			xtype: 'textfield',
+			allowBlank: true,
+			regex: /[0-9]+/,
+			regexText: 'This field allow only Numeric input'
+
+		    },
+		    items: {
+
+			xtype: 'textfield',
+			autoWidth: true,
+			flex: 1,
+			margin: 2
+		    }
+		    
+
+		},{
+		    width: 80,
+		    sortable: false,
+		    hideable: false,
+		    dataIndex: 'd3',
+		    editor: {
+			xtype: 'textfield',
+			allowBlank: true,
+			regex: /[0-9]+/,
+			regexText: 'This field allow only Numeric input'
+		    },
+		    items: {
+			xtype: 'textfield',
+			flex: 1,
+			margin: 2
+		    }
+		    
+
+		}]
 
 	    }
 	    
@@ -802,7 +960,7 @@ Ext.onReady(function(){
 				    title: 'Input Experimental Data',
 				    name: 'data',
 				    items: mappingGraph_grid,
-				    width: 730
+				    width: 665
 				}]
 				
 			    })
@@ -835,7 +993,7 @@ Ext.onReady(function(){
 				    title: 'Input Experimental Data',
 				    name: 'data',
 				    items: mappingIntensity_grid,
-				    width: 180
+				    width: 340
 				  }]
 			    })
 
@@ -895,7 +1053,7 @@ Ext.onReady(function(){
 				    if(btn == 'yes'){
 					
 					var submitOption = {};
-					var submitData = [];
+
 					/** Get form value **/
 					var graph_form = Ext.getCmp('GraphMapping_Form').getForm();
 					
@@ -909,18 +1067,28 @@ Ext.onReady(function(){
 					var optionJson = Ext.JSON.encode(submitOption);
 					//.
 					
-					var records = Mapping_Data.getRange();
-					
+					/** GraphMapping_grid **/
+					var submitData = [];
+					var records = Store_GraphMapping.getRange();
 					Ext.each(records, function(item, idx){
 					    // id element not necessary
 					    delete item.data['id'];
 					    // item.get to access a field in the record
 					    submitData.push(item.data);
 					});
-
-					
 					var sendJson = Ext.JSON.encode(submitData);
+					//.
 
+					/** ComparisonMapping_grid **/
+					var c_submitData = [];
+					var c_records = Store_ComparisonMapping.getRange();
+					Ext.each(records, function(item, idx){
+					    delete item.data['id'];
+					    c_submitData.push(item.data);
+					});
+					var c_sendJson = Ext.JSON.encode(c_submitData);
+					//.
+					
 					win.close();
 					Ext.get('MainPanel').mask('Create Mapping Data...', 'x-mask-loading');
 			    		
@@ -928,11 +1096,11 @@ Ext.onReady(function(){
 					Ext.Ajax.request({
 					    method: 'POST',
 					    url: 'R/R.cgi',
-					    params: {data: sendJson, option: optionJson},
+					    params: {data: sendJson, c_data: c_sendJson, option: optionJson},
 					    cache: false,
 					    success:
 					    function(json){
-
+						
 						if(mappingGraph_Data.exist === true){
 						    /** Delete Graph Images **/
 						    mappingGraph_Data.overlay.forEach(function(data,idx){
@@ -1030,27 +1198,27 @@ function Change_Hierarchy(hie, tile, pathw){
 	}else if( hie === 'Pathway'){
 	    /** display graphs onto pathway. Occurs when Zoom up action **/	    
 	    	    
-	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Data.hasOwnProperty('map'+pathw) ){
+	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Pathway.hasOwnProperty('map'+pathw) ){
 
 		mappingGraph_Data.mask.setMap(map);
 
 		var bound;
 		
-		for(var i=0; i< eval('mappingGraph_Data.data.Data.map'+pathw+'.length');i++){
+		for(var i=0; i< eval('mappingGraph_Data.data.Pathway.map'+pathw+'.length');i++){
 		    
 		    /** Graph Mapping : Display Objects **/
-		    if( eval('mappingGraph_Data.data.Data.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
+		    if( eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
 			
 			bound = new google.maps.LatLngBounds(
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[0]'),
-						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].sw_latlng[1]')
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].sw_latlng[0]'),
+						   eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].sw_latlng[1]')
 						  ),
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[0]'),
-						   eval('mappingGraph_Data.data.Data.map'+pathw+'[i].ne_latlng[1]')
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].ne_latlng[0]'),
+						   eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].ne_latlng[1]')
 						  )
 			);
 			
-			var img = 'R/'+ eval('mappingGraph_Data.data.Data.map'+pathw+'[i].Graph_Path');
+			var img = 'R/'+ eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].Graph_Path');
 			mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map) );
 			
 			/** Explicitly call setMap on this overlay **/
@@ -1060,24 +1228,24 @@ function Change_Hierarchy(hie, tile, pathw){
 			
 		    }
 		    
-		    /** Intensity Mapping : Display Objects **/
-		    if( eval('mappingGraph_Data.data.Data.map'+pathw+'[i]').hasOwnProperty('i_color') ){
+		    /** Intensity Mapping (Intensity Mapping) : Display Objects **/
+		    if( eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i]').hasOwnProperty('i_color') ){
 
-			if ( eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
+			if ( eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
 
 			    bound = new google.maps.LatLngBounds(
-				new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
-						       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
+				new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
+						       eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
 						      ),
-				new google.maps.LatLng(eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
-						       eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
+				new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
+						       eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
 						      )
 			    );
 			    
 			    mappingGraph_Data.overlay.push( new google.maps.Rectangle({
 				bounds: bound,
 				map: map,
-				fillColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+				fillColor: eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_color'),
 				fillOpacity: 0.8,
 				strokeColor: 'black',
 				strokeOpacity: 0.9,
@@ -1088,10 +1256,10 @@ function Change_Hierarchy(hie, tile, pathw){
 			}else{
 			
 			    var [center_lat, center_lng, perimeter_lat, perimeter_lng] = [
-				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
-				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
-				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
-				eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
+				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
+				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
+				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
+				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
 			    ];
 
 			    /** calculate distance between Compound center  **/
@@ -1105,7 +1273,7 @@ function Change_Hierarchy(hie, tile, pathw){
 				strokeColor: 'black',
 				strokeOpacity: 0.8,
 				strokeWeight: 1,
-				fillColor: eval('mappingGraph_Data.data.Data.map'+pathw+'[i].i_color'),
+				fillColor: eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_color'),
 				fillOpacity: 0.8,
 				map: map,
 				clickable: false,
