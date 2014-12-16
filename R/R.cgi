@@ -1,5 +1,26 @@
 #!/usr/bin/env perl
 
+# 変更点
+# Graph Mapping と Node mapping を結合する。
+# Process
+# データがゼロの場合は、Next
+
+# データひとつでも、グラフはつくる。
+# Color スイッチ入ってたら、背景いれる。
+# colorの計算方法を取得する。 (平均値、中央値)
+
+## 多群比較(Compare Mapping)
+# Options
+# Organism  Select the organisms...
+
+# サンプル名のセット
+# Visualize mode
+# - ratio  - SD  - medan
+## Base Samples (Combo Box)
+
+# Color mode (Same as Graph Mapping)
+#
+
 $\ = "\n";
 use strict;
 use warnings;
@@ -15,6 +36,7 @@ use File::Copy 'copy';
 use Archive::Zip;
 use Errno ();
 use JSON;
+use Statistics::Descriptive;
 
 ## R start set
 my $R = Statistics::R->new();
@@ -22,9 +44,15 @@ $R->startR;
 my $start_time = Time::HiRes::time;
 ##.
 
+## Statistics::Descriptive set
+my $stat = Statistics::Descriptive::Full->new();
+##
+
 ## CGI start set
 my $cgi = new CGI;
 my $InputData = decode_json( $cgi->param("data") );
+my $Option = decode_json( $cgi->param("option") );
+
 print "Content-type: text/html;charset=utf-8;\n\n";
 ##.
 
@@ -66,26 +94,57 @@ foreach my $hash (@$InputData){
   ### Graph Mapping System
   ##.
   my $graph_type = lc $$hash{'type'};
-
-
-  ## retrieve time series
-  my $frequency =
-    join ', ',
+  
+  ## retrieve time series data
+#  my $frequency =
+  #    join ', ',
+  
+  my @frequency = 
     map { $$hash{ $_->[0] } } ## TASK: Checker subroutine
     sort { $a->[1] <=> $b->[1] }
     map{ [$_, /^t(\d+)$/] }
     map{$$hash{$_}=~ s/^$/NA/;$_}
     ( grep /^t\d+$/, keys %$hash );
-  
+
   my $time = '1:'.scalar(grep /^t\d+$/, keys %$hash);
-  
-  if($frequency =~ /[0-9]/){
+
+  if(  grep { $_ =~ /^\d+$/ } @frequency ){
     $Mapping_Switch{'Graph_Mapping'} = 1;
+  }else{
+    next;
+  }
+  
+  my $element_color;
+  my $backgroundColor;
+  if(exists($$Option{'color'})){
+
+      my @from_color = (255, 0, 0);
+      my @to_color = (0, 255, 0);
+      ## analysis input time series data
+      $stat->clear();
+      $stat->add_data(@frequency);
+      ##
+      
+      if($$Option{'fillto'} eq 'element'){
+	$element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
+	$element_color = '#'.$element_color;
+
+	
+	$backgroundColor = "\'transparent\'";
+	$Mapping_Switch{'Intensity_Mapping'} = 1; ## fill element
+	
+      }elsif($$Option{'fillto'} eq 'graph'){
+	my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
+	$backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
+	$Mapping_Switch{'Intensity_Mapping'} = 2; ## fill Graph
+
+      }
   }
   ##.
 
-  ## Intensity Mapping
-  my $element_color;
+
+=pod
+
   my $i_color = $$hash{'i_color'};
   if( $i_color =~ /^[0-9]+$/ ){
     my @from_color = (255, 0, 0);
@@ -97,6 +156,8 @@ foreach my $hash (@$InputData){
     ## Error: color is unvalid format
   }
   ##.
+
+=cut
 
 
   ## Occurs when all mapping switches are zero
@@ -195,7 +256,6 @@ foreach my $hash (@$InputData){
       if($Mapping_Switch{'Graph_Mapping'} == 1){
 	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
       }
-  
 
       push @{ $JSON{"Data"}{'map'.$$record{'Pathway'}} }, $push2JSON;
 
@@ -268,15 +328,17 @@ foreach my $hash (@$InputData){
     }
   }
 
+  my $frequency = join ', ', @frequency;
 
-  my $return_num = &R_Graph($query_id, $Mapping_ID, $graph_type, $time,$frequency, \@Mapping_Pathways);
+  my $return_num = &R_Graph($query_id, $Mapping_ID, $graph_type, $time, $frequency, \@Mapping_Pathways, $backgroundColor);
 
   if ($return_num = 0){ ## Occurs when &R_Graph failed
     $R->stopR();
     printf("0.3f", Time::HiRes::time - $start_time);
     die "$query_id: Generate Graph failed\n";
   }
-  ($query_id, $graph_type, $frequency) = undef;
+  ( $query_id, $graph_type ) = undef;
+  @frequency = ();
   @Mapping_Pathways = ();
   
   
@@ -294,76 +356,26 @@ $zip->writeToFileNamed( "${Mapping_ID}/${Mapping_ID}.zip" );
 ##.
 
 =cut
-  
+
 }
 
 
 $R->stopR();
 
 $JSON{'Mapping_ID'} = "$Mapping_ID";
-
-=pod
-my $insert;
-
-$insert .= qq|{|;
-$insert .=  qq( "Mapping_ID":"$Mapping_ID", );
-$insert .=  qq( "Data":{);
-
-while (my ($key, $value) = each(%JSON)) {
-  $value =~ s/,\n$//g;
-  $insert .= qq|"map$key" : [$value],|;
-}
-$insert =~ s/,$//;
-$insert .= qq(});
-$insert .= qq|}|;
-$insert =~ s/\n//g;
-
-# result for mapping(test)
-print $insert;
-#.
-=cut
-
 print encode_json(\%JSON);
-#$insert = decode_json($insert);
-=pod
-C00031,100
-C00103,98
-C00631,95
-C00267,87
-C00221,85
-C00111,80
-C01172,77
-C00668,74
-C00118,68
-C05345,65
-C00197,60
-C00236,50
-C00186,40
-C01159,35
-C00469,30
-C05125,23
-C00084,20
-C01136,18
-C05378,17
-C02827,15
-C06189,13
-C06186,10
-C06187,7
-C06188,5
-C01451,3
-
-=cut
 
 sub R_Graph{
   my $R_script;
-  my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways) = ($_[0], $_[1], $_[2], $_[3], $_[4], $_[5]);
+  my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways, $backgroundColor) = ($_[0], $_[1], $_[2], $_[3], $_[4], $_[5], $_[6]);
   my $first_dir = shift @$Mapping_Pathways;
   my $file_from = "./${Mapping_ID}/${first_dir}/${Query_ID}.png";
 
   ## Data sets
   $R->send(qq`Data = data.frame( Time = c(${time}), Frequency = c(${freq}) )`);
   ##.
-  $R->send(qq`png(file="${file_from}", width=200, height=200, bg="transparent", pointsize="10.5");`);
+
+  $R->send(qq`png(file="${file_from}", width=200, height=200, bg=${backgroundColor}, pointsize="10.5");`);
   $R->send(q`par(mar=c(1.4,2.0,0.5,0),  family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
 
 

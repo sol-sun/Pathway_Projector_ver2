@@ -10,6 +10,7 @@
     // Ext.form
     Ext.require('Ext.form.field.ComboBox');
     Ext.require('Ext.form.FieldSet');
+    Ext.require('Ext.form.RadioGroup');
     // Ext.layout
     Ext.require('Ext.layout.container.*');
     // Ext.tab
@@ -20,6 +21,7 @@
     Ext.require('Ext.menu.ColorPicker');
     // Ext.data
     Ext.require('Ext.data.Store');
+
 }
 
 
@@ -247,6 +249,7 @@ Ext.onReady(function(){
 	xtype: 'grouped-header-grid',
 	store: Mapping_Data,
 	columnLines: true,
+	autoScroll: false,
 	viewConfig: {
 	    markDirty: false
 	},
@@ -554,16 +557,16 @@ Ext.onReady(function(){
 	alias: 'controller.tab-view',
 
 	onTabChange: function(tabs, newTab, oldTab){
-
+	    
 	    Ext.suspendLayouts();
 	    //newTab.setTitle('Active Tab');
 	    //oldTab.setTitle('Inactive Tab');
 	    Ext.resumeLayouts(true);
 	    
 	}
+
     });
-    //.
-    
+
     /*
      var mappingGraph_form =  Ext.create('Ext.form.FormPanel',{
      bodyStyle:{"background-color":"#f4f4f4"},
@@ -625,58 +628,192 @@ Ext.onReady(function(){
 		    animateTarget: button,
 		    width: 750,
 		    height: 550,
-		    autoHeight: true,
+
 		    tools: [{type: 'pin'}],
 		    layout: 'fit',
-		    controler: 'tab-view',		    
+		    controller: 'tab-view',
 		    defaults: {
-			autoScroll: true,
 			border: 0
 		    },
-
+		    
 		    items: [{
 			xtype: 'tabpanel',
-			defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
+			defaults: {autoWidth: true,
+			autoHeight: false,
+			autoScroll: true,
+				   bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
 			items:[{
-
+			    
 			    title: 'Graph Mapping',
 			    items: Ext.create('Ext.form.FormPanel',{
+				id: 'GraphMapping_Form',
 				bodyStyle:{"background-color":"#f4f4f4"},
 				border: 0,
 				items: [{
-
+				    margin: '10 15 10 10',
 				    xtype: 'combobox',
 				    fieldLabel: 'Organisms type',
-				    labelWidth: 300,
+				    labelWidth: 150,
 				    name: 'org',
-				    emptyText: 'Select a organisms...'
-
-				},{
-
-				    xtype: 'combobox',
-				    labelWidth: 300,
-				    fieldLabel: 'Color for elements (genes/proteins/compounds)',
-				    name: 'color',
-				    emptyText: 'Select color'
-
+				    emptyText: 'Select the organism '
 				    
 				},{
+				    xtype: 'fieldset',
+				    title: 'Color Options',
+				    layout: 'anchor',
+				    defaults: {
+					anchor: '100%'
+				    },
+				    items: [{
+					xtype: 'checkbox',
+					name: 'color',
+					boxLabel: 'Enabled fill color',
+					hideLabel: true,
+					checked: false,
+					margin: '0 0 10 0',
+					scope: this,
+					handler: function(box, checked){
+					    
+					    var fieldset = box.ownerCt;
+					    Ext.Array.forEach(fieldset.query('radiogroup'), function(field) {
+						
+						field.setVisible(checked);
+						if(checked === true){
+						    field.setDisabled(false);
+						    field.el.animate({opacity: false ? 0.3 : 1});
+						}else{
+						    field.setDisabled(true);
+						    field.el.animate({opacity: true ? 0.3 : 1});
+						}
+					    }); 
+					}
+				    },{
 
+					xtype: 'container',
+					layout: 'hbox',
+					
+					items: [
+					    {
+						xtype: 'radiogroup',
+						width: 350,
+						layout: {
+						    autoFlex: false
+						},
+						fieldLabel: 'Method',
+						defaults: {
+						    name: 'method',
+						    margin: '0 15 0 0'
+						},
+						style: 'opacity:.3',
+						disabled: true,
+						items: [{
+						    inputValue: 'median',
+						    boxLabel: 'Median',
+						    checked: true
+						},{
+						    inputValue: 'mean',
+						    boxLabel: 'Mean'
+						    
+						},{
+						    inputValue: 'grad',
+						    boxLabel: 'Gradient'
+						}]
+					    },{
+						xtype: 'radiogroup',
+						layout: {
+						    autoFlex: false
+						},
+						fieldLabel: 'Fill to ',
+						defaults: {
+						    name: 'fillto',
+						    margin: '0 15 0 0'
+						},
+
+						style: 'opacity:.3',
+						disabled: true,
+						
+						items: [{
+						    inputValue: 'graph',
+						    boxLabel: 'Graph',
+						    checked: true
+						},{
+						    inputValue: 'element',
+						    boxLabel: 'Element'
+						    
+						}]
+						
+						//				    labelWidth: 300,
+						//				    fieldLabel: 'Color for elements (genes/proteins/compounds)',
+					    }]
+					//				    emptyText: 'Select color'
+				    },{
+					xtype: 'radiogroup',
+					labelWidth: 150,
+					layout: {
+					    autoFlex: false
+					},
+					fieldLabel: 'Color for Genes/Proteins ',
+					defaults: {
+					    name: 'gene_color',
+					    margin: '0 15 0 0'
+					},
+					
+					style: 'opacity:.3',
+					disabled: true,
+										
+					items: [{
+					    inputValue: 'red2green',
+					    boxLabel: 'Red to Green',
+					    checked: true
+					},{
+					    inputValue: 'blue2yellow',
+					    boxLabel: 'Blue to Yellow'
+
+					}]
+				    },{
+
+					xtype: 'radiogroup',
+					labelWidth: 150,
+					layout: {
+					    autoFlex: false
+					},
+					fieldLabel: 'Color for Compounds ',
+					defaults: {
+					    name: 'compound_color',
+					    margin: '0 15 0 0'
+					},
+					
+					style: 'opacity:.3',
+					disabled: true,
+
+					items: [{
+					    inputValue: 'red2green',
+					    boxLabel: 'Red to Green'
+					  
+					},{
+					    inputValue: 'blue2yellow',
+					    boxLabel: 'Blue to Yellow',
+					    checked: true
+					}]
+					
+				    }]				
+				    
+				},{
 				    title: 'Input Experimental Data',
 				    name: 'data',
 				    items: mappingGraph_grid,
 				    width: 730
-
 				}]
+				
 			    })
 			    
-									    
 			},{
 			    title: 'Intensity Mapping',
-
+			    
 			    defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
-
+			    
 			    items: Ext.create('Ext.form.FormPanel', {
+				id: 'IntensityMapping_Form',
 				border: 0,
 				bodyStyle:{"background-color":"#f4f4f4"},
 				
@@ -722,10 +859,11 @@ Ext.onReady(function(){
 			    pack: 'start'
 			},
 			scope: this,
+			    //			listeners: {
+//			    click: 'submitMappingData'
+//			},
 			handler: function(){
-
-
-			    /**  **/
+			
 			    var editing =  {
 				state: false,
 				txt: String()
@@ -750,14 +888,28 @@ Ext.onReady(function(){
 					icon: Ext.MessageBox.ERROR
 
 				    });
-			    }
-			    else if(editing.state === false){
+			    }else if(editing.state === false){
+
 				Ext.MessageBox.confirm('Confirm', 'Are you Ready to Mapping?', function(btn){
-				    
+
 				    if(btn == 'yes'){
 					
-					var records = Mapping_Data.getRange();
+					var submitOption = {};
 					var submitData = [];
+					/** Get form value **/
+					var graph_form = Ext.getCmp('GraphMapping_Form').getForm();
+					
+					if(graph_form.isValid()){
+
+					    Ext.Object.each(graph_form.getValues(), function(key, value){
+						submitOption[key] = value;
+					    });
+					    
+					}
+					var optionJson = Ext.JSON.encode(submitOption);
+					//.
+					
+					var records = Mapping_Data.getRange();
 					
 					Ext.each(records, function(item, idx){
 					    // id element not necessary
@@ -765,10 +917,10 @@ Ext.onReady(function(){
 					    // item.get to access a field in the record
 					    submitData.push(item.data);
 					});
-					
+
 					
 					var sendJson = Ext.JSON.encode(submitData);
-					
+
 					win.close();
 					Ext.get('MainPanel').mask('Create Mapping Data...', 'x-mask-loading');
 			    		
@@ -776,7 +928,7 @@ Ext.onReady(function(){
 					Ext.Ajax.request({
 					    method: 'POST',
 					    url: 'R/R.cgi',
-					    params: {data: sendJson},
+					    params: {data: sendJson, option: optionJson},
 					    cache: false,
 					    success:
 					    function(json){
