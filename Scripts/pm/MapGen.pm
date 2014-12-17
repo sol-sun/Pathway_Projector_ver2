@@ -100,6 +100,12 @@ z-index: 20000;
       exist: false
     };
 
+    var mappingComparison = {
+      data: '',
+      overlay: '',
+      exist: false
+    };
+
  Ext.onReady(function(){    // Load Ext JS 4.0 library before show Google maps Scripts.
 
 __START_HTML__

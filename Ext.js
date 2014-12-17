@@ -1082,7 +1082,7 @@ Ext.onReady(function(){
 					/** ComparisonMapping_grid **/
 					var c_submitData = [];
 					var c_records = Store_ComparisonMapping.getRange();
-					Ext.each(records, function(item, idx){
+					Ext.each(c_records, function(item, idx){
 					    delete item.data['id'];
 					    c_submitData.push(item.data);
 					});
@@ -1196,29 +1196,29 @@ function Change_Hierarchy(hie, tile, pathw){
 	    mappingGraph_Data.mask.setMap(null);
 	    
 	}else if( hie === 'Pathway'){
-	    /** display graphs onto pathway. Occurs when Zoom up action **/	    
+	    /** display graphs onto pathway. Occurs when user in Pathway hierarchy **/	    
 	    	    
-	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Pathway.hasOwnProperty('map'+pathw) ){
+	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Graph.hasOwnProperty('map'+pathw) ){
 
 		mappingGraph_Data.mask.setMap(map);
 
 		var bound;
 		
-		for(var i=0; i< eval('mappingGraph_Data.data.Pathway.map'+pathw+'.length');i++){
+		for(var i=0; i< eval('mappingGraph_Data.data.Graph.map'+pathw+'.length');i++){
 		    
 		    /** Graph Mapping : Display Objects **/
-		    if( eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
+		    if( eval('mappingGraph_Data.data.Graph.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
 			
 			bound = new google.maps.LatLngBounds(
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].sw_latlng[0]'),
-						   eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].sw_latlng[1]')
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].sw_latlng[0]'),
+						   eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].sw_latlng[1]')
 						  ),
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].ne_latlng[0]'),
-						   eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].ne_latlng[1]')
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].ne_latlng[0]'),
+						   eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].ne_latlng[1]')
 						  )
 			);
 			
-			var img = 'R/'+ eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].Graph_Path');
+			var img = 'R/'+ eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].Graph_Path');
 			mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map) );
 			
 			/** Explicitly call setMap on this overlay **/
@@ -1229,23 +1229,23 @@ function Change_Hierarchy(hie, tile, pathw){
 		    }
 		    
 		    /** Intensity Mapping (Intensity Mapping) : Display Objects **/
-		    if( eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i]').hasOwnProperty('i_color') ){
+		    if( eval('mappingGraph_Data.data.Graph.map'+pathw+'[i]').hasOwnProperty('i_color') ){
 
-			if ( eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
+			if ( eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
 
 			    bound = new google.maps.LatLngBounds(
-				new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
-						       eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
+				new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
+						       eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
 						      ),
-				new google.maps.LatLng(eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
-						       eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
+				new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
+						       eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
 						      )
 			    );
 			    
 			    mappingGraph_Data.overlay.push( new google.maps.Rectangle({
 				bounds: bound,
 				map: map,
-				fillColor: eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_color'),
+				fillColor: eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_color'),
 				fillOpacity: 0.8,
 				strokeColor: 'black',
 				strokeOpacity: 0.9,
@@ -1256,10 +1256,10 @@ function Change_Hierarchy(hie, tile, pathw){
 			}else{
 			
 			    var [center_lat, center_lng, perimeter_lat, perimeter_lng] = [
-				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
-				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
-				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
-				eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
+				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
+				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
+				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
+				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
 			    ];
 
 			    /** calculate distance between Compound center  **/
@@ -1273,7 +1273,7 @@ function Change_Hierarchy(hie, tile, pathw){
 				strokeColor: 'black',
 				strokeOpacity: 0.8,
 				strokeWeight: 1,
-				fillColor: eval('mappingGraph_Data.data.Pathway.map'+pathw+'[i].i_color'),
+				fillColor: eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_color'),
 				fillOpacity: 0.8,
 				map: map,
 				clickable: false,

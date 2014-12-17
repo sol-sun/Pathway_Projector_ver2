@@ -51,6 +51,7 @@ my $stat = Statistics::Descriptive::Full->new();
 my $cgi = new CGI;
 my $InputData = decode_json( $cgi->param("data") );
 my $Option = decode_json( $cgi->param("option") );
+my $comparisonData = decode_json( $cgi->param("c_data") );
 
 print "Content-type: text/html;charset=utf-8;\n\n";
 ##.
@@ -75,28 +76,24 @@ unless (mkdir ("./$Mapping_ID", 0755) or $! == Errno::EEXIST){
 }
 ##.
 
+
 my %JSON;
 
 foreach my $hash (@$InputData){
 
-  my %Mapping_Switch = (
-			Graph_Mapping => 0,
-			Intensity_Mapping => 0,
-			Label_Mapping => 0
-		       );
-  
-  
+  my %GraphMapping_Switch = (
+			     Mapping => 0,
+			     Fill_Color => 0
+			    );
+
   my $query_id = $$hash{'name'};
   
   next if $query_id eq ''; # <- TASK: Error log
 
   ### Graph Mapping System
-  ##.
   my $graph_type = lc $$hash{'type'};
   
   ## retrieve time series data
-#  my $frequency =
-  #    join ', ',
   
   my @frequency = 
     map { $$hash{ $_->[0] } } ## TASK: Checker subroutine
@@ -108,46 +105,57 @@ foreach my $hash (@$InputData){
   my $time = '1:'.scalar(grep /^t\d+$/, keys %$hash);
 
   if(  grep { $_ =~ /^\d+$/ } @frequency ){
-    $Mapping_Switch{'Graph_Mapping'} = 1;
-  }else{
-    next;
+    $GraphMapping_Switch{'Mapping'} = 1;
   }
-  
+
   my $element_color;
   my $backgroundColor;
   if(exists($$Option{'color'})){
-    
+
     my @from_color = (255, 0, 0);
     my @to_color = (0, 255, 0);
     ## analysis input time series data
     $stat->clear();
     $stat->add_data(@frequency);
     ##
-    
+
     if($$Option{'fillto'} eq 'element'){
       $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
-	$element_color = '#'.$element_color;
-      
-      
+      $element_color = '#'.$element_color;
+
       $backgroundColor = "\'transparent\'";
-      $Mapping_Switch{'Intensity_Mapping'} = 1; ## fill element
-      
+      $GraphMapping_Switch{'Fill_Color'} = 1; ## fill element
+
     }elsif($$Option{'fillto'} eq 'graph'){
       my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
       $backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
-      $Mapping_Switch{'Intensity_Mapping'} = 2; ## fill Graph
-      
+      $GraphMapping_Switch{'Fill_Color'} = 2; ## fill Graph
     }
+
   }else{
     $backgroundColor = "\'transparent\'";
   }
   ##.
 
+  
+  if(  grep { $_ =~ /^\d+$/ } @frequency ){
+    $GraphMapping_Switch{'Mapping'} = 1;
+  }
 
   ## Occurs when all mapping switches are zero
-  next if $Mapping_Switch{'Intensity_Mapping'} == 0 && $Mapping_Switch{'Graph_Mapping'} == 0;
+  if( $GraphMapping_Switch{'Mapping'} == 1  ){
+    unless (mkdir ("./$Mapping_ID/Graph", 0755) or $! == Errno::EEXIST){
+      die "failed to create dir:./$Mapping_ID/Graph:$!";
+    }
+  }
+
+
+  if($GraphMapping_Switch{'Mapping'} == 0){
+    next;
+  }
+
   ##.
-  
+
   my $object;
   if($query_id =~ m/^[CDG]/){
 
@@ -172,8 +180,8 @@ foreach my $hash (@$InputData){
 
       ##created directory( e.g. /[ID]/00010/ ) for mapping datas
       push @Mapping_Pathways, $$record{'Pathway'};
-      unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST){
-	die "failed to create dir:./$Mapping_ID:$!";
+      unless (mkdir ("./$Mapping_ID/Graph/$$record{'Pathway'}") or $! == Errno::EEXIST){
+	die "failed to create dir:./$Mapping_ID/Graph/$$record{'Pathway'}:$!";
       }
       #.
       
@@ -185,7 +193,7 @@ foreach my $hash (@$InputData){
 #	@coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
 	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
 
-	if($Mapping_Switch{'Intensity_Mapping'} == 1){
+	if($GraphMapping_Switch{'Fill_Color'} == 1){
 	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
 	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
 	}
@@ -213,7 +221,7 @@ foreach my $hash (@$InputData){
 
 	my ($x, $y) = ($$record{'xy'}{'x'}, $$record{'xy'}{'y'});
 
-	if($Mapping_Switch{'Intensity_Mapping'} == 1){
+	if($GraphMapping_Switch{'Fill_Color'} == 1){
 	  $push2JSON->{'i_LatLng'}->{'center_latlng'} = [&Generator::xy2latlng($x, $y)];
 	  $push2JSON->{'i_LatLng'}->{'perimeter_latlng'} = [&Generator::xy2latlng($x+28, $y+28)];
 	}
@@ -229,20 +237,22 @@ foreach my $hash (@$InputData){
 
       }
       #.
-
+      ## Graph Mapping
       $push2JSON->{'sw_latlng'} = ["$sw_lat", "$sw_lng"];
       $push2JSON->{'ne_latlng'} = ["$ne_lat", "$ne_lng"];
 
-      if($Mapping_Switch{'Intensity_Mapping'} == 1){
+      
+      if($GraphMapping_Switch{'Fill_Color'} == 1){
 	$push2JSON->{'i_color'} = $element_color;
       }
 
-      if($Mapping_Switch{'Graph_Mapping'} == 1){
-	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
+      if($GraphMapping_Switch{'Mapping'} == 1){
+	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/Graph/$$record{'Pathway'}/${query_id}.png";
       }
-
-      push @{ $JSON{"Pathway"}{'map'.$$record{'Pathway'}} }, $push2JSON;
-
+      ##.
+      
+      
+      push @{ $JSON{"Graph"}{'map'.$$record{'Pathway'}} }, $push2JSON;
     }
 
   }elsif ($query_id =~ m/^([RK])/){
@@ -257,11 +267,12 @@ foreach my $hash (@$InputData){
     ## change => latlng じゃなくて xy値を持ってくる．
     while(my $record = $object->next){
       my $push2JSON = {};
+      
       my @coords;
       push @Mapping_Pathways, $$record{'Pathway'};
-      ##created directory( e.g. /[ID]/00010/ ) for mapping datas
-      unless (mkdir ("./$Mapping_ID/$$record{'Pathway'}") or $! == Errno::EEXIST) {
-	die "failed to create dir:./$Mapping_ID:$!";
+      ##created directory( e.g. /[ID]/Graph/00010/ ) for mapping datas
+      unless (mkdir ("./$Mapping_ID/Graph/$$record{'Pathway'}") or $! == Errno::EEXIST) {
+	die "failed to create dir:./$Mapping_ID/Graph/$$record{'Pathway'}:$!";
       }
       ##.
 
@@ -272,7 +283,7 @@ foreach my $hash (@$InputData){
 	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
 
 
-	if($Mapping_Switch{'Intensity_Mapping'} == 1){ # fill in circle
+	if($GraphMapping_Switch{'Fill_Color'} == 1){ # fill in circle
 	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
 	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
 	}
@@ -289,7 +300,7 @@ foreach my $hash (@$InputData){
 	##.
       } elsif ($$record{'Shape'} eq 'Circle') {
 
-	if($Mapping_Switch{'Intensity_Mapping'} == 1){ # fill in circle
+	if($GraphMapping_Switch{'Fill_Color'} == 1){ # fill in circle
 	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = ["$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}"];
 	}
 
@@ -300,15 +311,15 @@ foreach my $hash (@$InputData){
       $push2JSON->{'sw_latlng'} =  ["$sw_lat", "$sw_lng"];
       $push2JSON->{'ne_latlng'} =  ["$ne_lat", "$ne_lng"];
 
-      if($Mapping_Switch{'Intensity_Mapping'} == 1){
+      if($GraphMapping_Switch{'Fill_Color'} == 1){
 	$push2JSON->{'i_color'} = $element_color;
       }
 
-      if($Mapping_Switch{'Graph_Mapping'} == 1){
-	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/$$record{'Pathway'}/${query_id}.png";
+      if($GraphMapping_Switch{'Mapping'} == 1){
+	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/Graph/$$record{'Pathway'}/${query_id}.png";
       }
 
-      push @{ $JSON{"Pathway"}{'map'.$$record{'Pathway'}} }, $push2JSON;
+      push @{ $JSON{"Graph"}{'map'.$$record{'Pathway'}} }, $push2JSON;
     }
   }
 
@@ -343,6 +354,275 @@ $zip->writeToFileNamed( "${Mapping_ID}/${Mapping_ID}.zip" );
 
 }
 
+open my $file, '>','test';
+## Comparison Mapping
+foreach my $hash (@$comparisonData){
+
+  my %ComparisonMapping_Switch = (
+				  Mapping => 0,
+				  Fill_Color => 0
+				 );
+  
+  my $query_id = $$hash{'name'};
+  
+  next if $query_id eq ''; # <- TASK: Error log
+
+  
+  ## retrieve time series data
+
+  my @frequency = 
+    map { $$hash{ $_->[0] } } ## TASK: Checker subroutine
+    sort { $a->[1] <=> $b->[1] }
+    map{ [$_, /^d(\d+)$/] }
+    map{$$hash{$_}=~ s/^$//;$_}
+    ( grep /^d\d+$/, keys %$hash );
+  @frequency = grep { !/^\s*$/ } @frequency;
+
+  my $c_label = '"rasH2","non-Tg"';
+  
+  my $element_color;
+  my $backgroundColor;
+  if(exists($$Option{'color'})){
+
+    my @from_color = (255, 0, 0);
+    my @to_color = (0, 255, 0);
+    ## analysis input time series data
+    $stat->clear();
+    $stat->add_data(@frequency);
+    ##
+
+    if($$Option{'fillto'} eq 'element'){
+      $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
+      $element_color = '#'.$element_color;
+
+      $backgroundColor = "\'transparent\'";
+      $ComparisonMapping_Switch{'Fill_Color'} = 1; ## fill element
+
+    }elsif($$Option{'fillto'} eq 'graph'){
+      my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
+      $backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
+      $ComparisonMapping_Switch{'Fill_Color'} = 2; ## fill Graph
+    }
+
+  }else{
+    $backgroundColor = "\'transparent\'";
+  }
+  ##.
+
+  if(  grep { $_ =~ /^([1-9]\d*|0)(\.\d+)?$/ } @frequency ){
+    $ComparisonMapping_Switch{'Mapping'} = 1;
+  }
+
+  ## Occurs when all mapping switches are zero
+
+  if( $ComparisonMapping_Switch{'Mapping'} == 1  ){
+    unless (mkdir ("./$Mapping_ID/Comparison", 0755) or $! == Errno::EEXIST){
+      die "failed to create dir:./$Mapping_ID/Comparison:$!";
+    }
+  }
+
+  if($ComparisonMapping_Switch{'Mapping'} == 0){
+    next;
+  }
+
+  ##.
+
+  my $object;
+  if($query_id =~ m/^[CDG]/){
+
+    ##MongoDB search Get information of $query_id
+    ##
+    ## Variable list
+    ## .@Mapping_Pathway => KEGG-Pathway ID
+    ## .latlng
+
+    $object = $collection->find({'Meta.cpd' => "$query_id"});
+
+
+    #    unless($object->next){ ##Error Process. Occurs when the MongoDB search failed.
+    #      $R->stopR();
+    #      die "Not found $query_id in Database"; #<- TASK: Error log
+    #    }
+
+    while (my $record = $object->next){
+
+      my $push2JSON = {};
+      my @coords;
+
+      ##created directory( e.g. /[ID]/00010/ ) for mapping datas
+      push @Mapping_Pathways, $$record{'Pathway'};
+      unless (mkdir ("./$Mapping_ID/Comparison/$$record{'Pathway'}") or $! == Errno::EEXIST){
+	die "failed to create dir:./$Mapping_ID/Comparison/$$record{'Pathway'}:$!";
+      }
+      #.
+      my ($sw_x, $sw_y, $ne_x, $ne_y);
+      my ($sw_lat, $sw_lng, $ne_lat, $ne_lng);
+
+      ## Get latlng data
+      if ($$record{'Shape'} eq 'Rectangle') { ## Shape that applies to this condition is very ""LOW""
+#	@coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
+	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
+
+	if($ComparisonMapping_Switch{'Fill_Color'} == 1){
+	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
+	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
+	}
+	
+	my $rect_width = $ne_x - $sw_x;
+	my $rect_height = $sw_y - $ne_y;
+	if($rect_width < $rect_height){
+	  $sw_x = $ne_x - $rect_width;
+	  $sw_x += ($rect_height/2) - ($rect_width/2);
+	  $ne_x =  $sw_x + ($rect_width);
+	  $ne_y = $sw_y - ($rect_width);
+	}else{
+	  $sw_x = $ne_x - $rect_width;
+	  $sw_x += ($rect_width/2) - ($rect_height/2);
+	  $ne_x =  $sw_x + ($rect_height);
+	  $ne_y = $sw_y - ($rect_height);
+	}
+
+	($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+	 ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+
+	
+	
+      } elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
+
+	my ($x, $y) = ($$record{'xy'}{'x'}, $$record{'xy'}{'y'});
+
+	if($ComparisonMapping_Switch{'Fill_Color'} == 1){
+	  $push2JSON->{'i_LatLng'}->{'center_latlng'} = [&Generator::xy2latlng($x, $y)];
+	  $push2JSON->{'i_LatLng'}->{'perimeter_latlng'} = [&Generator::xy2latlng($x+28, $y+28)];
+	}
+
+
+	($sw_x, $sw_y) = ($x - 180, $y + 180); ## 地図全体の大きさが必要になるかも。今のところは、system関数でサイズを図る。
+	($ne_x, $ne_y) = ($x + 180, $y - 180); ## 
+	my $rect_width = $ne_x - $sw_x;
+	$ne_y = $sw_y -  $rect_width;
+
+	 ($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+	 ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+
+      }
+      #.
+      ## Graph Mapping
+      $push2JSON->{'sw_latlng'} = ["$sw_lat", "$sw_lng"];
+      $push2JSON->{'ne_latlng'} = ["$ne_lat", "$ne_lng"];
+
+      
+      if($ComparisonMapping_Switch{'Fill_Color'} == 1){
+	$push2JSON->{'i_color'} = $element_color;
+      }
+
+      if($ComparisonMapping_Switch{'Mapping'} == 1){
+	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/Comparison/$$record{'Pathway'}/${query_id}.png";
+      }
+      ##.
+      
+      push @{ $JSON{"Comparison"}{'map'.$$record{'Pathway'}} }, $push2JSON;
+    }
+
+  }elsif ($query_id =~ m/^([RK])/){
+    my $id = $1;
+
+    if($id eq 'K'){
+      $object = $collection->find({'Meta.KEGG_ORTHOLOGY' => "$query_id"});
+    }elsif( $id eq 'R'){
+      $object = $collection->find({'Meta.KEGG_REACTION' => "$query_id"});
+    }
+
+    ## change => latlng じゃなくて xy値を持ってくる．
+    while(my $record = $object->next){
+      my $push2JSON = {};
+
+      my @coords;
+      push @Mapping_Pathways, $$record{'Pathway'};
+      ##created directory( e.g. /[ID]/Graph/00010/ ) for mapping datas
+      unless (mkdir ("./$Mapping_ID/Comparison/$$record{'Pathway'}") or $! == Errno::EEXIST) {
+	die "failed to create dir:./$Mapping_ID/Comparison/$$record{'Pathway'}:$!";
+      }
+      ##.
+
+      my ($sw_x, $sw_y, $ne_x, $ne_y);
+      my ($sw_lat, $sw_lng, $ne_lat, $ne_lng);
+
+      if ($$record{'Shape'} eq 'Rectangle') {
+	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
+
+
+	if($ComparisonMapping_Switch{'Fill_Color'} == 1){ # fill in circle
+	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
+	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
+	}
+	##これを足がかりとする．他の変更は一斉に．
+	##latlngをxyに変換し画像サイズに設定の上またlatlng値に戻す．
+	## swを固定する．つまり右上にはみ出た画像を貼ることになる．
+
+	my $rect_width = $ne_x - $sw_x;
+	$ne_y = $sw_y -  $rect_width;
+
+	($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+	($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+
+	##.
+      } elsif ($$record{'Shape'} eq 'Circle') {
+
+	if($ComparisonMapping_Switch{'Fill_Color'} == 1){ # fill in circle
+	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = ["$$record{'latlng'}{'lat'}", "$$record{'latlng'}{'lng'}"];
+	}
+
+	($sw_lat, $sw_lng, $ne_lat, $ne_lng) =  ( (&Generator::xy2latlng("$$record{'xy'}{'x'}", "$$record{'xy'}{'y'}")), (&Generator::xy2latlng("$$record{'xy'}{'x'}", "$$record{'xy'}{'y'}")) );
+
+      }
+
+      $push2JSON->{'sw_latlng'} =  ["$sw_lat", "$sw_lng"];
+      $push2JSON->{'ne_latlng'} =  ["$ne_lat", "$ne_lng"];
+
+      if($ComparisonMapping_Switch{'Fill_Color'} == 1){
+	$push2JSON->{'i_color'} = $element_color;
+      }
+
+      if($ComparisonMapping_Switch{'Mapping'} == 1){
+	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/Comparison/$$record{'Pathway'}/${query_id}.png";
+      }
+
+      push @{ $JSON{"Comparison"}{'map'.$$record{'Pathway'}} }, $push2JSON;
+    }
+  }
+
+  my $frequency = join ', ', @frequency;
+
+  my $return_num = &R_Comparison($query_id, $Mapping_ID, $c_label, $frequency, \@Mapping_Pathways, $backgroundColor);
+
+  if ($return_num = 0){ ## Occurs when &R_Graph failed
+    $R->stopR();
+    printf("0.3f", Time::HiRes::time - $start_time);
+    die "$query_id: Generate Graph failed\n";
+  }
+  $query_id = undef;
+  @frequency = ();
+  @Mapping_Pathways = ();
+  
+  
+  ## Insert in MongoDB "Mapping_Data" collection
+  #$collection2->insert($insert);
+  ##
+
+=pod
+
+## Create a Zip file of Mapping Data
+my $zip = Archive::Zip->new();
+$zip->addTree( "${Mapping_ID}" );
+map{$_->desiredCompressionMethod( 'COMPRESSION_LEVEL_BEST_COMPRESSION' )} $zip->members();
+$zip->writeToFileNamed( "${Mapping_ID}/${Mapping_ID}.zip" );
+##.
+
+=cut
+
+}
+
 
 $R->stopR();
 
@@ -351,9 +631,9 @@ print encode_json(\%JSON);
 
 sub R_Graph{
   my $R_script;
-  my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways, $backgroundColor) = ($_[0], $_[1], $_[2], $_[3], $_[4], $_[5], $_[6]);
+  my ($Query_ID, $Mapping_ID, $Graph_Type, $time, $freq, $Mapping_Pathways, $backgroundColor) = @_;
   my $first_dir = shift @$Mapping_Pathways;
-  my $file_from = "./${Mapping_ID}/${first_dir}/${Query_ID}.png";
+  my $file_from = "./${Mapping_ID}/Graph/${first_dir}/${Query_ID}.png";
 
   ## Data sets
   $R->send(qq`Data = data.frame( Time = c(${time}), Frequency = c(${freq}) )`);
@@ -362,8 +642,6 @@ sub R_Graph{
   $R->send(qq`png(file="${file_from}", width=200, height=200, bg=${backgroundColor}, pointsize="10.5");`);
   $R->send(q`par(mar=c(1.4,2.0,0.5,0),  family="Times New Roman")`); ##mar[1]=below, mar[2]=left, mar[3]=above, mar[4]=right
 
-
-  
   if ($Graph_Type eq 'bar') {	## Bar plot
     $R->send(q`barplot(Data$Frequency, col="black", ylim=c(0,100), yaxp=c(0,100,5), yaxt="n", mgp=c(0,0,0), names.arg=Data$Time)`);
     $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`); # y axis options
@@ -378,13 +656,13 @@ sub R_Graph{
 
   } elsif ($Graph_Type eq 'group') {
   }
-  my $ret = $R->read;
+
   $R->send(qq`dev.off();`);
 
   ## Copy graph in other pathway
   for my $dir (@$Mapping_Pathways) {
-    next if -e "./${Mapping_ID}/${dir}/${Query_ID}.png";
-    my $file_to = "./${Mapping_ID}/${dir}/";
+    next if -e "./${Mapping_ID}/Graph/${dir}/${Query_ID}.png";
+    my $file_to = "./${Mapping_ID}/Graph/${dir}/";
     copy($file_from, $file_to) or die "Cannot copy $file_from to $file_to: $!";
   }
   ##
@@ -392,57 +670,30 @@ sub R_Graph{
   return 1;			## successful!!
   
 }
+sub R_Comparison{
+  my $R_script;
+  my ($Query_ID, $Mapping_ID, $label, $freq, $Mapping_Pathways, $backgroundColor) = @_;
 
+  my $first_dir = shift@$Mapping_Pathways;
+  my $file_from = "./${Mapping_ID}/Comparison/${first_dir}/${Query_ID}.png";
+  
+  ## Data sets
+  $R->send(qq`Data = data.frame( Label = c(${label}), Intensity = c(${freq}))`);
+  $R->send(qq`png(file="${file_from}", width=200, height=200, bg=${backgroundColor}, pointsize="10.5");`);
+  $R->send(q`par(mar=c(3.0,2.7,0.5,0),  family="Times New Roman")`);
+  $R->send(q`barplot(Data$Intensity, names.arg=Data$Label,  col=gray.colors(length(Data$Label), start = 0.1, end = 1, gamma = 2.2, alpha = NULL),space=2, yaxp=c(0,100,5),yaxt="n",mgp=c(0,0.5,0.1),font=4, axis.lty=1)`);
+  $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`);
 
+  $R->send(qq`dev.off();`);
 
-__END__
-{
-  "Mapping_ID":"5122560",
-    "Data":{
-      "00230":[
-	       {
-		"ne_latlng":[
-			     "12.4840331592034",
-			     "149.36170212766"],
-		"sw_latlng":[
-			     "3.0598321005346",
-			     "139.838987924094"],
-		"Graph_Path":"5122560/00230/K03043.png"
-	       },{"ne_latlng":["22.9189703382635","-114.997124784359"],"sw_latlng":["13.8948761203052","-124.519838987924"],"Graph_Path":"5122560/00230/K03043.png"},{"Graph_Path":"5122560/00230/K03046.png","sw_latlng":["3.0598321005346","139.838987924094"],"ne_latlng":["12.4840331592034","149.36170212766"]},{"Graph_Path":"5122560/00230/K03046.png","sw_latlng":["13.8948761203052","-124.519838987924"],"ne_latlng":["22.9189703382635","-114.997124784359"]}],"03020":[{"Graph_Path":"5122560/03020/K03043.png","ne_latlng":["-8.63514723865846","-139.7542997543"],"sw_latlng":["-27.8462366447398","-160.09828009828"]},{"Graph_Path":"5122560/03020/K03046.png","sw_latlng":["-34.2806504458716","-160.09828009828"],"ne_latlng":["-15.97534308768","-139.7542997543"]}],"00240":[{"sw_latlng":["38.8300460852731","-114.799154334038"],"ne_latlng":["47.3322534664842","-103.128964059197"],"Graph_Path":"5122560/00240/K03043.png"},{"Graph_Path":"5122560/00240/K03043.png","sw_latlng":["12.6635149286002","-114.038054968288"],"ne_latlng":["23.7291226984706","-102.367864693446"]},{"ne_latlng":["47.3322534664842","-103.128964059197"],"sw_latlng":["38.8300460852731","-114.799154334038"],"Graph_Path":"5122560/00240/K03046.png"},{"Graph_Path":"5122560/00240/K03046.png","ne_latlng":["23.7291226984706","-102.367864693446"],"sw_latlng":["12.6635149286002","-114.038054968288"]}]}}
-  { "Mapping_ID":"0000000",
-
-    "Data":{
-      #      ..
-      "map04910" : [
-		    {
-	"sw_xy"     <=    "sw_latlng" : [
-				    "-66.3815962885395",
-				    "-2.83817427385912"
-				   ],
-	"ne_xy"	  <=   "ne_latlng" : [
-				    "-68.3355742069462",
-				    "-16.5809128630707"
-				   ],
-		     "Graph_Path" : "7432847/04910/R02584.png"
-		    },
-		    {
-		     "sw_latlng" : [
-				    "-4.52057567282767",
-				    "-132.796680497925"
-				   ],
-		     "ne_latlng" : [
-				    "-9.55944925669965",
-				    "-146.539419087137"
-				   ],
-		     "cn_latlng" : [
-				   ],
-		     "Graph_Path" : "7432847/04910/R02584.png",
-		     "type": "rect" ## "circle"
-		     "i_color" : "#ffffff"
-		    }
-		   ]#,
-	#		       ..
-    }
+    ## Copy graph in other pathway
+  for my $dir (@$Mapping_Pathways) {
+    next if -e "./${Mapping_ID}/Comparison/${dir}/${Query_ID}.png";
+    my $file_to = "./${Mapping_ID}/Comparison/${dir}/";
+    copy($file_from, $file_to) or die "Cannot copy $file_from to $file_to: $!";
   }
+  ##
 
-
+  return 1;
+  ##.
+}
