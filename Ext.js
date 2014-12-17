@@ -1108,6 +1108,13 @@ Ext.onReady(function(){
 						    });
 						    mappingGraph_Data.overlay.clear();
 						    mappingGraph_Data.mask.setMap(null);
+						}
+						if(mappingComparison.exist === true){
+						    /** Delete Graph Images **/
+						    mappingComparison.overlay.forEach(function(data,idx){
+							data.setMap(null);
+						    });
+						    mappingComparison.overlay.clear();
 						    
 						}
 
@@ -1129,10 +1136,46 @@ Ext.onReady(function(){
 						/** Graph is only show in PATHWAY Layers **/
 						mappingGraph_Data.overlay = new google.maps.MVCArray();
 						mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
-						mappingGraph_Data.exist = true;
-						
+						mappingComparison.data = Ext.JSON.decode(json.responseText);
 
-						Change_Hierarchy( Hierarchy, Tile_Type, Map_ID );
+
+						map.controls[google.maps.ControlPosition.TOP_RIGHT].clear(); // init
+
+						var MapControlDiv,
+						    MapControlLabel,
+						    MapControl;
+						
+						if(mappingComparison.data.hasOwnProperty('Comparison')){
+						    Mapping_mode = 'Comparison';
+						    
+						    /** Set type controller on the map **/
+						    MapControlDiv = document.createElement('div');
+						    MapControlLabel = 'Comparison';
+						    MapControl = new Mapping_Selection(MapControlDiv, MapControlLabel, map);
+						    MapControlDiv.index = 1;
+						    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(MapControlDiv);
+						    //.
+						}
+						
+						if(mappingGraph_Data.data.hasOwnProperty('Graph')){
+						    mappingGraph_Data.exist = true;
+						    Mapping_mode ='Graph';
+						    
+						    
+						    /** Set type controller on the map **/
+						    MapControlDiv = document.createElement('div');
+						    MapControlLabel = 'Intensity';
+						    MapControl = new Mapping_Selection(MapControlDiv, MapControlLabel, map);
+						    MapControlDiv.index = 1;
+						
+						  
+						    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(MapControlDiv);
+						    //.
+
+						}
+						
+						Change_Hierarchy( Hierarchy, Tile_Type, Map_ID, Mapping_mode );
+						
 						
 						Ext.get('MainPanel').unmask();
 					    }
@@ -1171,13 +1214,12 @@ Ext.onReady(function(){
 
 });
 
-function Change_Hierarchy(hie, tile, pathw){
+function Change_Hierarchy(hie, tile, pathw, Mapping_mode){
 
-
+    
     /** Graph mapping **/
     // mappingGraph_Data.overlay is MVCArray class. MVCArray has graphs data 
     if(mappingGraph_Data.exist === true){
-
 	
 	if( hie === 'Category' ){
 	    mappingGraph_Data.mask.setMap(null);
@@ -1197,28 +1239,28 @@ function Change_Hierarchy(hie, tile, pathw){
 	    
 	}else if( hie === 'Pathway'){
 	    /** display graphs onto pathway. Occurs when user in Pathway hierarchy **/	    
-	    	    
-	    if(mappingGraph_Data.overlay.getArray() == 0 &&  mappingGraph_Data.data.Graph.hasOwnProperty('map'+pathw) ){
+
+	    if(mappingGraph_Data.overlay.getArray() == 0 &&  eval('mappingGraph_Data.data.'+Mapping_mode).hasOwnProperty('map'+pathw)){
 
 		mappingGraph_Data.mask.setMap(map);
 
 		var bound;
 		
-		for(var i=0; i< eval('mappingGraph_Data.data.Graph.map'+pathw+'.length');i++){
+		for(var i=0; i< eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'.length');i++){
 		    
 		    /** Graph Mapping : Display Objects **/
-		    if( eval('mappingGraph_Data.data.Graph.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
+		    if( eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i]').hasOwnProperty('Graph_Path') === true ){
 			
 			bound = new google.maps.LatLngBounds(
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].sw_latlng[0]'),
-						   eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].sw_latlng[1]')
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].sw_latlng[0]'),
+						   eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].sw_latlng[1]')
 						  ),
-			    new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].ne_latlng[0]'),
-						   eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].ne_latlng[1]')
+			    new google.maps.LatLng(eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].ne_latlng[0]'),
+						   eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].ne_latlng[1]')
 						  )
 			);
 			
-			var img = 'R/'+ eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].Graph_Path');
+			var img = 'R/'+ eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].Graph_Path');
 			mappingGraph_Data.overlay.push( new mappingGraph(bound, img, map) );
 			
 			/** Explicitly call setMap on this overlay **/
@@ -1229,23 +1271,23 @@ function Change_Hierarchy(hie, tile, pathw){
 		    }
 		    
 		    /** Intensity Mapping (Intensity Mapping) : Display Objects **/
-		    if( eval('mappingGraph_Data.data.Graph.map'+pathw+'[i]').hasOwnProperty('i_color') ){
+		    if( eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i]').hasOwnProperty('i_color') ){
 
-			if ( eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
+			if ( eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng').hasOwnProperty('sw_latlng') ){
 
 			    bound = new google.maps.LatLngBounds(
-				new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
-						       eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
+				new google.maps.LatLng(eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.sw_latlng[0]'),
+						       eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.sw_latlng[1]')
 						      ),
-				new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
-						       eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
+				new google.maps.LatLng(eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.ne_latlng[0]'),
+						       eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.ne_latlng[1]')
 						      )
 			    );
 			    
 			    mappingGraph_Data.overlay.push( new google.maps.Rectangle({
 				bounds: bound,
 				map: map,
-				fillColor: eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_color'),
+				fillColor: eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_color'),
 				fillOpacity: 0.8,
 				strokeColor: 'black',
 				strokeOpacity: 0.9,
@@ -1256,24 +1298,22 @@ function Change_Hierarchy(hie, tile, pathw){
 			}else{
 			
 			    var [center_lat, center_lng, perimeter_lat, perimeter_lng] = [
-				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
-				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
-				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
-				eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
+				eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
+				eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
+				eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
+				eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
 			    ];
 
 			    /** calculate distance between Compound center  **/
 			    /** calculate length of a line segment from circle(Compound) center to circle(Compound) perimeter. **/
 			    
 			    var radius = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(center_lat, center_lng), new google.maps.LatLng(perimeter_lat, perimeter_lng));
-			    console.log(radius);
-			    
-			    console.log(center_lat+', '+center_lng);
+
 			    mappingGraph_Data.overlay.push( new google.maps.Circle({
 				strokeColor: 'black',
 				strokeOpacity: 0.8,
 				strokeWeight: 1,
-				fillColor: eval('mappingGraph_Data.data.Graph.map'+pathw+'[i].i_color'),
+				fillColor: eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_color'),
 				fillOpacity: 0.8,
 				map: map,
 				clickable: false,
@@ -1336,38 +1376,105 @@ function mappingGraph(bounds, image, map) {
     div.appendChild(img);
 
     this.div_ = div;
-
-    // Add the element to the "overlayLayer" pane.
+	
+	// Add the element to the "overlayLayer" pane.
 	var panes = this.getPanes();
 	panes.overlayShadow.appendChild(div);//    panes.overlayLayer.appendChild(div);
     };
     // [END region_attachment]
     // [START region_drawing]
-mappingGraph.draw = function() {
-
-    // We use the south-west and north-east
-    // coordinates of the overlay to peg it to the correct position and size.
-    // To do this, we need to retrieve the projection from the overlay.
-    var overlayProjection = this.getProjection();
-
-    // Retrieve the south-west and north-east coordinates of this overlay
-    // in LatLngs and convert them to pixel coordinates.
-    // We'll use these coordinates to resize the div.
-    var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
-    var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
-
-    // Resize the image's div to fit the indicated dimensions.
-    var div = this.div_;
-    div.style.left = sw.x + 'px';
-    div.style.top = ne.y + 'px';
-    div.style.width = (ne.x - sw.x) + 'px';
-    div.style.height = (sw.y - ne.y) + 'px';
-};
-
-mappingGraph.onRemove = function() {
-    this.div_.parentNode.removeChild(this.div_);
-    this.div_ = null;
-};
+    mappingGraph.draw = function() {
+	
+	// We use the south-west and north-east
+	// coordinates of the overlay to peg it to the correct position and size.
+	// To do this, we need to retrieve the projection from the overlay.
+	var overlayProjection = this.getProjection();
+	
+	// Retrieve the south-west and north-east coordinates of this overlay
+	// in LatLngs and convert them to pixel coordinates.
+	// We'll use these coordinates to resize the div.
+	var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+	var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+	
+	// Resize the image's div to fit the indicated dimensions.
+	var div = this.div_;
+	div.style.left = sw.x + 'px';
+	div.style.top = ne.y + 'px';
+	div.style.width = (ne.x - sw.x) + 'px';
+	div.style.height = (sw.y - ne.y) + 'px';
+    };
+    
+    mappingGraph.onRemove = function() {
+	this.div_.parentNode.removeChild(this.div_);
+	this.div_ = null;
+    };
     return mappingGraph;    
 }
 
+
+
+function Mapping_Selection(controlDiv, controlLabel , map){
+    
+    // Set CSS styles for the DIV containing the control
+    // Setting padding to 5 px will offset the control
+    // from the edge of the map.
+    controlDiv.style.padding = '5px';
+
+    // Set CSS for the control border.
+    var controlUI = document.createElement('div');
+    controlUI.style.backgroundColor = 'white';
+    controlUI.style.borderStyle = 'solid';
+    controlUI.style.borderWidth = '2px';
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.textAlign = 'center';
+    controlUI.title = 'Click to change the mapping style';
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior.
+    var controlText = document.createElement('div');
+    controlText.style.fontFamily = 'Arial,sans-serif';
+    controlText.style.fontSize = '12px';
+    controlText.style.paddingLeft = '4px';
+    controlText.style.paddingRight = '4px';
+    controlText.innerHTML = '<strong>'+controlLabel+'</strong>';
+    controlUI.appendChild(controlText);
+
+    // Setup the click event listeners: simply set the map to Chicago.
+    google.maps.event.addDomListener(controlUI, 'click', function() {
+
+	if(Mapping_mode == controlLabel ){
+	    
+	}else if(Mapping_mode == 'Graph' && controlLabel == 'Intensity'){
+	    
+	}else{
+	    if(controlLabel == 'Intensity'){
+		/** Delete Graph Images **/
+		mappingGraph_Data.overlay.forEach(function(data,idx){
+		    data.setMap(null);
+		});
+		mappingGraph_Data.overlay.clear();
+		mappingGraph_Data.mask.setMap(null);
+
+		Mapping_mode = 'Graph';
+
+	    }else{
+
+		/** Delete Graph Images **/
+		mappingGraph_Data.overlay.forEach(function(data,idx){
+		    data.setMap(null);
+		});
+		mappingGraph_Data.overlay.clear();
+		mappingGraph_Data.mask.setMap(null);
+	    
+		Mapping_mode = controlLabel;		
+
+	    }
+
+	    
+	    Change_Hierarchy( Hierarchy, Tile_Type, Map_ID, Mapping_mode );
+
+	}
+	
+    });
+    
+}

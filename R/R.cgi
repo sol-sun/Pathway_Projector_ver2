@@ -379,9 +379,12 @@ foreach my $hash (@$comparisonData){
   @frequency = grep { !/^\s*$/ } @frequency;
 
   my $c_label = '"rasH2","non-Tg"';
-  
+
   my $element_color;
   my $backgroundColor;
+
+=pod
+
   if(exists($$Option{'color'})){
 
     my @from_color = (255, 0, 0);
@@ -408,6 +411,9 @@ foreach my $hash (@$comparisonData){
     $backgroundColor = "\'transparent\'";
   }
   ##.
+
+=cut
+  $backgroundColor = "\'transparent\'";
 
   if(  grep { $_ =~ /^([1-9]\d*|0)(\.\d+)?$/ } @frequency ){
     $ComparisonMapping_Switch{'Mapping'} = 1;
@@ -681,7 +687,9 @@ sub R_Comparison{
   $R->send(qq`Data = data.frame( Label = c(${label}), Intensity = c(${freq}))`);
   $R->send(qq`png(file="${file_from}", width=200, height=200, bg=${backgroundColor}, pointsize="10.5");`);
   $R->send(q`par(mar=c(3.0,2.7,0.5,0),  family="Times New Roman")`);
-  $R->send(q`barplot(Data$Intensity, names.arg=Data$Label,  col=gray.colors(length(Data$Label), start = 0.1, end = 1, gamma = 2.2, alpha = NULL),space=2, yaxp=c(0,100,5),yaxt="n",mgp=c(0,0.5,0.1),font=4, axis.lty=1)`);
+
+  $R->send(q`barplot(Data$Intensity, names.arg=Data$Label,  col=gray.colors(length(Data$Label), start = 0.1, end = 0.6, gamma = 2.2, alpha = NULL),space=2, yaxp=c(0,100,5),yaxt="n",mgp=c(0,0.5,0.1),font=4, axis.lty=1)`);
+#    $R->send(q`barplot(Data$Intensity, names.arg=Data$Label,  col='black',space=2, yaxp=c(0,100,5),yaxt="n",mgp=c(0,0.5,0.1),font=4, axis.lty=1)`);
   $R->send(q`axis(2, mgp=c(0,0.6,0), las=1, cex.axis=1.2)`);
 
   $R->send(qq`dev.off();`);

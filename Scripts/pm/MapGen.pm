@@ -87,6 +87,8 @@ z-index: 20000;
     var Mapping_result_json;
     var Mapping_ID;
 
+    var Mapping_mode;
+
     var mappingGraph_Data ={
        data: '',
        overlay: '',
