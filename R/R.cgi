@@ -1,4 +1,5 @@
-#!/usr/bin/env perl
+#!/Users/sol-sun/.anyenv/envs/plenv/versions/Pathway_Projector_ver2/bin/perl
+##!/usr/bin/env perl
 
 # 変更点
 # Graph Mapping と Node mapping を結合する。

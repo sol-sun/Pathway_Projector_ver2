@@ -91,3 +91,7 @@ Data.tar.lzma
 github.memo
 /ext/
 ##
+
+## plenv
+.perl-version
+##
