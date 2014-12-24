@@ -88,7 +88,8 @@ foreach my $hash (@$InputData){
 			    );
 
   my $query_id = $$hash{'name'};
-  
+  $query_id = &Generator::trim($query_id);
+
   next if $query_id eq ''; # <- TASK: Error log
 
   ### Graph Mapping System
@@ -118,7 +119,20 @@ foreach my $hash (@$InputData){
     ## analysis input time series data
     $stat->clear();
     $stat->add_data(@frequency);
+    my $method = $$hash{'method'};
+    my $representative_value;
+    if($method eq 'median'){
+        $representative_value = $stat->median();
+    }elsif($method eq 'mean'){
+        $representative_value = $stat->mean();
+    }elsif($method eq 'gradient'){
+        $representative_value = $stat->median(); ## TASK: Setting gradient subroutine
+    }
+    
     ##
+    
+    #
+
 
     if($$Option{'fillto'} eq 'element'){
       $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );

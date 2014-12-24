@@ -108,7 +108,7 @@ z-index: 20000;
       exist: false
     };
 
- Ext.onReady(function(){    // Load Ext JS 4.0 library before show Google maps Scripts.
+ Ext.onReady(function(){    // Load Ext JS 5.1 library before show Google maps Scripts.
 
 __START_HTML__
     
@@ -170,7 +170,7 @@ Marker_Text.prototype.draw = function(){
     var point = this.getProjection().fromLatLngToDivPixel( new google.maps.LatLng( this.lat_, this.lng_ ) );
 //    this.div_.style.left = point.x - 13 + 'px'; // >=1000 => -13. >=100
     this.div_.style.left = point.x + this.x + 'px'; // >=1000 => -13. >=100
-    this.div_.style.top = point.y - 40.5 + 'px';// >=1000 => -40.5. >=100
+    this.div_.style.top = point.y - 40.5 + 'px'; // >=1000 => -40.5. >=100
 }
 
 Marker_Text.prototype.onRemove = function(){
@@ -457,5 +457,12 @@ sub latlng2xy{
 sub tan{
     return sin($_[0]) / cos($_[0]);
 }
+
+sub trim{
+    my $val = shift;
+    $val =~ s/^\s*(.*?)\s*$/$1/;
+    return $val;
+}
+
 
 1;

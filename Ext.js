@@ -802,7 +802,7 @@ Ext.onReady(function(){
 				   bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
 			items:[{
 			    
-			    title: 'Graph Mapping',
+			    title: 'Intensity Mapping',
 			    items: Ext.create('Ext.form.FormPanel',{
 				id: 'GraphMapping_Form',
 				bodyStyle:{"background-color":"#f4f4f4"},
@@ -819,9 +819,11 @@ Ext.onReady(function(){
 				    xtype: 'fieldset',
 				    title: 'Color Options',
 				    layout: 'anchor',
+                    hideable: true,
 				    defaults: {
 					anchor: '100%'
 				    },
+
 				    items: [{
 					xtype: 'checkbox',
 					name: 'color',
@@ -849,11 +851,12 @@ Ext.onReady(function(){
 
 					xtype: 'container',
 					layout: 'hbox',
-					
+
 					items: [
 					    {
 						xtype: 'radiogroup',
 						width: 350,
+                        hidden:true,
 						layout: {
 						    autoFlex: false
 						},
@@ -878,6 +881,7 @@ Ext.onReady(function(){
 						}]
 					    },{
 						xtype: 'radiogroup',
+                        hidden:true,
 						layout: {
 						    autoFlex: false
 						},
@@ -893,11 +897,10 @@ Ext.onReady(function(){
 						items: [{
 						    inputValue: 'graph',
 						    boxLabel: 'Graph',
-						    checked: true
 						},{
 						    inputValue: 'element',
-						    boxLabel: 'Element'
-						    
+						    boxLabel: 'Element',
+                            checked: true
 						}]
 						
 						//				    labelWidth: 300,
@@ -907,6 +910,7 @@ Ext.onReady(function(){
 				    },{
 					xtype: 'radiogroup',
 					labelWidth: 150,
+                    hidden:true,
 					layout: {
 					    autoFlex: false
 					},
@@ -932,6 +936,7 @@ Ext.onReady(function(){
 
 					xtype: 'radiogroup',
 					labelWidth: 150,
+                    hidden:true,
 					layout: {
 					    autoFlex: false
 					},
@@ -966,7 +971,7 @@ Ext.onReady(function(){
 			    })
 			    
 			},{
-			    title: 'Intensity Mapping',
+			    title: 'Comparison Mapping',
 			    
 			    defaults: {autoWidth: true, autoHeight: true, bodyStyle:{"background-color":"#f4f4f4"},	border: 0 },
 			    
@@ -1137,7 +1142,6 @@ Ext.onReady(function(){
 						mappingGraph_Data.overlay = new google.maps.MVCArray();
 						mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
 						mappingComparison.data = Ext.JSON.decode(json.responseText);
-
 
 						map.controls[google.maps.ControlPosition.TOP_RIGHT].clear(); // init
 

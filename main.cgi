@@ -1,9 +1,6 @@
 #!/Users/sol-sun/.anyenv/envs/plenv/versions/Pathway_Projector_ver2/bin/perl
 ###!/usr/bin/env perl
-<<<<<<< HEAD
-=======
 
->>>>>>> a766e61df3ea7499542e7c601e5cb4727816f232
 use strict;
 use warnings;
 use CGI;
