@@ -62,6 +62,7 @@ my $client = MongoDB::MongoClient->new();
 $client->authenticate('Carpesys', 't11881tm', 'taiyo1102');
 my $database = $client->get_database('Carpesys');
 my $collection = $database->get_collection('Element');
+my $Pathway_Maps = $database->get_collection('Pathway_Maps');
 my $collection2 = $database->get_collection('Mapping_Data');
 ##.
 
@@ -113,48 +114,48 @@ foreach my $hash (@$InputData){
   my $element_color;
   my $backgroundColor;
   if(exists($$Option{'color'})){
-
-    my @from_color = (255, 0, 0);
-    my @to_color = (0, 255, 0);
-    ## analysis input time series data
-    $stat->clear();
-    $stat->add_data(@frequency);
-    my $method = $$hash{'method'};
-    my $representative_value;
-    if($method eq 'median'){
-        $representative_value = $stat->median();
-    }elsif($method eq 'mean'){
-        $representative_value = $stat->mean();
-    }elsif($method eq 'gradient'){
-        $representative_value = $stat->median(); ## TASK: Setting gradient subroutine
-    }
+      my @black = (0, 0, 0);
+      my @red = (255, 0, 0); ## from_color
+      my @green = (0, 255, 0); ## to_color
+      
+      my @from_color = (255, 0, 0);
+      my @to_color = (0, 255, 0);
+      ## analysis input time series data
+      $stat->clear();
+      $stat->add_data(@frequency);
+      my $method = $$hash{'method'};
+      my $representative_value;
+      if($method eq 'median'){
+          $representative_value = $stat->median();
+      }elsif($method eq 'mean'){
+          $representative_value = $stat->mean();
+      }elsif($method eq 'gradient'){
+          $representative_value = $stat->median(); ## TASK: Setting gradient subroutine
+      }
     
-    ##
+      ##
     
-    #
+      if($$Option{'fillto'} eq 'element'){
+          $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
+          $element_color = '#'.$element_color;
 
+          $backgroundColor = "\'transparent\'";
+          $GraphMapping_Switch{'Fill_Color'} = 1; ## fill element
 
-    if($$Option{'fillto'} eq 'element'){
-      $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
-      $element_color = '#'.$element_color;
-
-      $backgroundColor = "\'transparent\'";
-      $GraphMapping_Switch{'Fill_Color'} = 1; ## fill element
-
-    }elsif($$Option{'fillto'} eq 'graph'){
-      my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
-      $backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
-      $GraphMapping_Switch{'Fill_Color'} = 2; ## fill Graph
-    }
+      }elsif($$Option{'fillto'} eq 'graph'){
+          my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
+          $backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
+          $GraphMapping_Switch{'Fill_Color'} = 2; ## fill Graph
+      }
 
   }else{
-    $backgroundColor = "\'transparent\'";
+      $backgroundColor = "\'transparent\'";
   }
   ##.
 
   
   if(  grep { $_ =~ /^\d+$/ } @frequency ){
-    $GraphMapping_Switch{'Mapping'} = 1;
+      $GraphMapping_Switch{'Mapping'} = 1;
   }
 
   ## Occurs when all mapping switches are zero

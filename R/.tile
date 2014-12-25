@@ -1,0 +1,744 @@
+$VAR1 = {
+          'SubCategory' => 'Neurodegenerative_diseases',
+          'LatLng' => {
+                      'sw_lat' => '80.7380086279867',
+                      'sw_lng' => '126.0439453125',
+                      'cn_lng' => '138.6439453125',
+                      'ne_lat' => '85.05',
+                      'ne_lng' => '151.2439453125',
+                      'cn_lat' => '83.2281405441722'
+                    },
+          '_id' => bless( {
+                          'value' => '539623658b03f50205000150'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 0,
+                  'cn_x' => 12530,
+                  'cn_y' => 700,
+                  'sw_x' => 12040,
+                  'ne_x' => 13020,
+                  'sw_y' => 1400
+                },
+          'Category' => 'Human_Diseases',
+          'Map_ID' => '05014'
+        };
+$VAR1 = {
+          'SubCategory' => 'Energy_metabolism',
+          'LatLng' => {
+                      'sw_lat' => '51.3260350499197',
+                      'sw_lng' => '-125.9560546875',
+                      'cn_lng' => '-83.9560546875',
+                      'ne_lng' => '-41.9560546875',
+                      'ne_lat' => '85.05',
+                      'cn_lat' => '75.9593445538783'
+                    },
+          '_id' => bless( {
+                          'value' => '5396216c8b03f5020500000f'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 0,
+                  'cn_x' => 1750,
+                  'cn_y' => 700,
+                  'sw_x' => 1260,
+                  'ne_x' => 2240,
+                  'sw_y' => 1400
+                },
+          'Category' => 'Metabolism',
+          'Map_ID' => '00190'
+        };
+$VAR1 = {
+          'SubCategory' => 'Energy_metabolism',
+          'LatLng' => {
+                      'sw_lat' => '51.3260350499197',
+                      'sw_lng' => '-125.9560546875',
+                      'cn_lng' => '-83.9560546875',
+                      'ne_lng' => '-41.9560546875',
+                      'ne_lat' => '85.05',
+                      'cn_lat' => '75.9593445538783'
+                    },
+          '_id' => bless( {
+                          'value' => '5396216c8b03f5020500000f'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 0,
+                  'cn_x' => 1750,
+                  'cn_y' => 700,
+                  'sw_x' => 1260,
+                  'ne_x' => 2240,
+                  'sw_y' => 1400
+                },
+          'Category' => 'Metabolism',
+          'Map_ID' => '00190'
+        };
+$VAR1 = {
+          'SubCategory' => 'Energy_metabolism',
+          'LatLng' => {
+                      'sw_lat' => '51.3260350499197',
+                      'sw_lng' => '42.0439453125',
+                      'cn_lng' => '84.0439453125',
+                      'ne_lat' => '85.05',
+                      'ne_lng' => '126.0439453125',
+                      'cn_lat' => '75.9593445538783'
+                    },
+          '_id' => bless( {
+                          'value' => '5396216c8b03f50205000011'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 0,
+                  'cn_x' => 3710,
+                  'cn_y' => 700,
+                  'sw_x' => 3220,
+                  'ne_x' => 4200,
+                  'sw_y' => 1400
+                },
+          'Category' => 'Metabolism',
+          'Map_ID' => '00195'
+        };
+$VAR1 = {
+          'SubCategory' => 'Energy_metabolism',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-41.9560546875',
+                      'cn_lng' => '0.0439453125',
+                      'ne_lng' => '42.0439453125',
+                      'ne_lat' => '51.3260350499197',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '5396216c8b03f50205000013'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 1400,
+                  'cn_x' => 2730,
+                  'cn_y' => 2100,
+                  'sw_x' => 2240,
+                  'ne_x' => 3220,
+                  'sw_y' => 2800
+                },
+          'Category' => 'Metabolism',
+          'Map_ID' => '00710'
+        };
+$VAR1 = {
+          'SubCategory' => 'Metabolism_of_cofactors_and_vitamins',
+          'LatLng' => {
+                      'sw_lat' => '51.3260350499197',
+                      'sw_lng' => '-83.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lat' => '85.05',
+                      'ne_lng' => '0.0439453125',
+                      'cn_lat' => '75.9593445538783'
+                    },
+          '_id' => bless( {
+                          'value' => '539621c78b03f50205000050'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 0,
+                  'cn_x' => 1750,
+                  'cn_y' => 700,
+                  'sw_x' => 1260,
+                  'ne_x' => 2240,
+                  'sw_y' => 1400
+                },
+          'Category' => 'Metabolism',
+          'Map_ID' => '00740'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lng' => '-27.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000116'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 5250,
+                  'cn_y' => 6300,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04962'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lng' => '-27.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000116'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 5250,
+                  'cn_y' => 6300,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04962'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lng' => '-27.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000116'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 5250,
+                  'cn_y' => 6300,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04962'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lng' => '-27.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000116'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 5250,
+                  'cn_y' => 6300,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04962'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'ne_lng' => '-27.9560546875',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000119'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 5250,
+                  'cn_y' => 7700,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04964'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'ne_lng' => '-27.9560546875',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000119'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 5250,
+                  'cn_y' => 7700,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04964'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-55.9560546875',
+                      'cn_lng' => '-41.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'ne_lng' => '-27.9560546875',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000119'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 5250,
+                  'cn_y' => 7700,
+                  'sw_x' => 4760,
+                  'ne_x' => 5740,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04964'
+        };
+$VAR1 = {
+          'SubCategory' => 'Excretory_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-27.9560546875',
+                      'cn_lng' => '-13.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'ne_lng' => '0.0439453125',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500011a'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 6230,
+                  'cn_y' => 7700,
+                  'sw_x' => 5740,
+                  'ne_x' => 6720,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04966'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010d'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 1330,
+                  'cn_y' => 6300,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04970'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010d'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 1330,
+                  'cn_y' => 6300,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04970'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010d'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 1330,
+                  'cn_y' => 6300,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04970'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-139.9560546875',
+                      'cn_lng' => '-125.9560546875',
+                      'ne_lng' => '-111.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010e'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 2310,
+                  'cn_y' => 6300,
+                  'sw_x' => 1820,
+                  'ne_x' => 2800,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04971'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-111.9560546875',
+                      'cn_lng' => '-97.9560546875',
+                      'ne_lng' => '-83.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010f'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 3290,
+                  'cn_y' => 6300,
+                  'sw_x' => 2800,
+                  'ne_x' => 3780,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04972'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-111.9560546875',
+                      'cn_lng' => '-97.9560546875',
+                      'ne_lng' => '-83.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010f'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 3290,
+                  'cn_y' => 6300,
+                  'sw_x' => 2800,
+                  'ne_x' => 3780,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04972'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-111.9560546875',
+                      'cn_lng' => '-97.9560546875',
+                      'ne_lng' => '-83.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010f'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 3290,
+                  'cn_y' => 6300,
+                  'sw_x' => 2800,
+                  'ne_x' => 3780,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04972'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-19.6057939512727',
+                      'sw_lng' => '-111.9560546875',
+                      'cn_lng' => '-97.9560546875',
+                      'ne_lng' => '-83.9560546875',
+                      'ne_lat' => '19.6057939512726',
+                      'cn_lat' => 0
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f5020500010f'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 5600,
+                  'cn_x' => 3290,
+                  'cn_y' => 6300,
+                  'sw_x' => 2800,
+                  'ne_x' => 3780,
+                  'sw_y' => 7000
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04972'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
+$VAR1 = {
+          'SubCategory' => 'Digestive_system',
+          'LatLng' => {
+                      'sw_lat' => '-51.3260350499197',
+                      'sw_lng' => '-167.9560546875',
+                      'cn_lng' => '-153.9560546875',
+                      'ne_lng' => '-139.9560546875',
+                      'ne_lat' => '-19.6057939512727',
+                      'cn_lat' => '-37.0980293116122'
+                    },
+          '_id' => bless( {
+                          'value' => '539622fa8b03f50205000110'
+                        }, 'MongoDB::OID' ),
+          'XY' => {
+                  'ne_y' => 7000,
+                  'cn_x' => 1330,
+                  'cn_y' => 7700,
+                  'sw_x' => 840,
+                  'ne_x' => 1820,
+                  'sw_y' => 8400
+                },
+          'Category' => 'Organismal_Systems',
+          'Map_ID' => '04976'
+        };
