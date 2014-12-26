@@ -1066,7 +1066,7 @@ Ext.onReady(function(){
 					                    var records = Store_GraphMapping.getRange();
 					                    Ext.each(records, function(item, idx){
 					                        // id element not necessary
-					                        delete item.data['id'];
+					                        delete item.data.id;
 					                        // item.get to access a field in the record
 					                        submitData.push(item.data);
 					                    });
@@ -1077,7 +1077,7 @@ Ext.onReady(function(){
 					                    var c_submitData = [];
 					                    var c_records = Store_ComparisonMapping.getRange();
 					                    Ext.each(c_records, function(item, idx){
-					                        delete item.data['id'];
+					                        delete item.data.id;
 					                        c_submitData.push(item.data);
 					                    });
 					                    var c_sendJson = Ext.JSON.encode(c_submitData);
@@ -1111,7 +1111,7 @@ Ext.onReady(function(){
 						                            mappingComparison.overlay.clear();
 						                            
 						                        }
-
+                                                
 						                        /** Mask in White for Mapping **/
 						                        mappingGraph_Data.mask = new google.maps.Rectangle({
 						                            strokeWeight: 0,
@@ -1131,7 +1131,7 @@ Ext.onReady(function(){
 						                        mappingGraph_Data.overlay = new google.maps.MVCArray();
 						                        mappingGraph_Data.data = Ext.JSON.decode(json.responseText);
 						                        mappingComparison.data = Ext.JSON.decode(json.responseText);
-
+                                                
 						                        map.controls[google.maps.ControlPosition.TOP_RIGHT].clear(); // init
 
 						                        var MapControlDiv,
@@ -1167,7 +1167,7 @@ Ext.onReady(function(){
 
 						                        }
 						                        
-						                        Change_Hierarchy( Hierarchy, Tile_Type, Map_ID, Mapping_mode );
+						                        Change_Hierarchy( Hierarchy, Subcategory, Tile_Type, Map_ID, Mapping_mode );
 						                        
 						                        
 						                        Ext.get('MainPanel').unmask();
@@ -1204,10 +1204,9 @@ Ext.onReady(function(){
     Ext.create('Eureka.Viewport');
     Ext.create('Eureka.Button');
 
-
 });
 
-function Change_Hierarchy(hie, tile, pathw, Mapping_mode){
+function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 
     
     /** Graph mapping **/
@@ -1215,23 +1214,169 @@ function Change_Hierarchy(hie, tile, pathw, Mapping_mode){
     if(mappingGraph_Data.exist === true){
 	    
 	    if( hie === 'Category' ){
-	        mappingGraph_Data.mask.setMap(null);
-	        
-	    }else if( hie === 'Subcategory' ){
-
-	        mappingGraph_Data.mask.setMap(null);
-	        
-	    }else if( hie === 'Tile' ){
-	        
 	        /** Delete Graph Images **/
 	        mappingGraph_Data.overlay.forEach(function(data,idx){
 		        data.setMap(null);
 	        });
 	        mappingGraph_Data.overlay.clear();
 	        mappingGraph_Data.mask.setMap(null);
-	        
+            
+	    }else if( hie === 'Subcategory' ){
+	        /** Delete Graph Images **/
+	        mappingGraph_Data.overlay.forEach(function(data,idx){
+		        data.setMap(null);
+	        });
+	        mappingGraph_Data.overlay.clear();
+	        mappingGraph_Data.mask.setMap(null);
+
+            
+            
+	    }else if( hie === 'Tile' ){
+	        /** Delete Graph Images **/
+	        mappingGraph_Data.overlay.forEach(function(data,idx){
+		        data.setMap(null);
+	        });
+	        mappingGraph_Data.overlay.clear();
+	        mappingGraph_Data.mask.setMap(null);
+
+            if(mappingGraph_Data.overlay.getArray() == 0 && eval('mappingGraph_Data.data.Graph.Tile').hasOwnProperty(tile)){
+
+                subcat = subcat.replace('/','');
+                
+                if(tile === 'Metabolism' && eval('mappingGraph_Data.data.Graph.Tile.'+tile).hasOwnProperty(subcat)){
+                    subcat = '.' + subcat;
+                    mappingGraph_Data.mask.setMap(map);
+                    
+                    var bound_down,
+                        bound_up;
+		            for(var i=0; i< eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'.length');i++){
+                                                var down_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lng')
+                            )
+
+                        ];
+
+                        var up_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lng')
+                            )
+
+                        ];
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: up_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].upcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                           
+                        }));
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: down_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].downcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                           
+                        }));
+
+                    }
+                }else{
+    
+                    mappingGraph_Data.mask.setMap(map);
+                                
+		            for(var i=0; i< eval('mappingGraph_Data.data.Graph.Tile.'+tile+'.length');i++){
+                        var down_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lng')
+                            )
+
+                        ];
+
+                        var up_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lng')
+                            )
+
+                        ];
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: up_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].upcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                           
+                        }));
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: down_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].downcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                           
+                        }));
+                    
+                    }
+                }
+            }
 	    }else if( hie === 'Pathway'){
-	        /** display graphs onto pathway. Occurs when user in Pathway hierarchy **/	    
+
+	        /** Delete Graph Images **/
+	        mappingGraph_Data.overlay.forEach(function(data,idx){
+		        data.setMap(null);
+	        });
+	        mappingGraph_Data.overlay.clear();
+	        mappingGraph_Data.mask.setMap(null);
+
+            /** display graphs onto pathway. Occurs when user in Pathway hierarchy **/	    
 
 	        if(mappingGraph_Data.overlay.getArray() == 0 &&  eval('mappingGraph_Data.data.'+Mapping_mode).hasOwnProperty('map'+pathw)){
 
@@ -1464,7 +1609,7 @@ function Mapping_Selection(controlDiv, controlLabel , map){
 	        }
 
 	        
-	        Change_Hierarchy( Hierarchy, Tile_Type, Map_ID, Mapping_mode );
+	        Change_Hierarchy( Hierarchy, Subcategory, Tile_Type, Map_ID, Mapping_mode );
 
 	    }
 	    

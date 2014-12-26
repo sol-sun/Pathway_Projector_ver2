@@ -78,8 +78,8 @@ unless (mkdir ("./$Mapping_ID", 0755) or $! == Errno::EEXIST){
 }
 ##.
 
-
 my %JSON;
+my $mapping_tile = {};
 
 foreach my $hash (@$InputData){
 
@@ -112,38 +112,62 @@ foreach my $hash (@$InputData){
   }
 
   my $element_color;
+  ## mapping_tile init
+  my ( $up, $down ) = (0, 0);
+  my ( $up_limit, $down_limit) = (1.5, 0.5); ## TASK: receive from Mapping form
+  ##.
+  
   my $backgroundColor;
+
   if(exists($$Option{'color'})){
-      my @black = (0, 0, 0);
-      my @red = (255, 0, 0); ## from_color
-      my @green = (0, 255, 0); ## to_color
-      
+
       my @from_color = (255, 0, 0);
       my @to_color = (0, 255, 0);
       ## analysis input time series data
       $stat->clear();
       $stat->add_data(@frequency);
-      my $method = $$hash{'method'};
+      my $method = $$Option{'method'};
       my $representative_value;
       if($method eq 'median'){
           $representative_value = $stat->median();
+          if( ($representative_value/50) >= $up_limit ){
+              $up = 1;
+          }
+          if( ($representative_value/50) <= $down_limit ){
+              $down = 1;
+          }
+              
       }elsif($method eq 'mean'){
+
           $representative_value = $stat->mean();
+          if( ($representative_value/50) >= $up_limit ){
+              $up = 1;
+          }
+          if( ($representative_value/50) <= $down_limit ){
+              $down = 1;
+          }
+
       }elsif($method eq 'gradient'){
           $representative_value = $stat->median(); ## TASK: Setting gradient subroutine
+          if( ($representative_value/50) >= $up_limit ){
+              $up = 1;
+          }
+          if( ($representative_value/50) <= $down_limit ){
+              $down = 1;
+          }
       }
     
       ##
     
       if($$Option{'fillto'} eq 'element'){
-          $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2) ) );
+          $element_color = unpack("H6", pack("C3", map{ (($to_color[$_] - $from_color[$_]) * $representative_value/100) + $from_color[$_]} (0..2) ) );
           $element_color = '#'.$element_color;
 
           $backgroundColor = "\'transparent\'";
           $GraphMapping_Switch{'Fill_Color'} = 1; ## fill element
 
       }elsif($$Option{'fillto'} eq 'graph'){
-          my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $stat->median()/100) + $from_color[$_]} (0..2);
+          my @rgb = map{ (($to_color[$_] - $from_color[$_]) * $representative_value/100) + $from_color[$_]} (0..2);
           $backgroundColor = "rgb($rgb[0], $rgb[1], $rgb[2], max=255, alpha=170)";
           $GraphMapping_Switch{'Fill_Color'} = 2; ## fill Graph
       }
@@ -194,6 +218,44 @@ foreach my $hash (@$InputData){
       my $push2JSON = {};
       my @coords;
 
+
+      ## mapping tile set
+      my $map_id = $$record{'Pathway'};
+      my $category = $Pathway_Maps->find({'Map_ID' => "$map_id"});
+      while(my $recordOfPathway_Maps = $category->next){
+          my $latlng = $$recordOfPathway_Maps{'LatLng'};
+          
+          my $tile_type = $$recordOfPathway_Maps{'Category'};
+          if($tile_type eq 'Metabolism'){
+              my $subcat = $$recordOfPathway_Maps{'SubCategory'};
+              if(exists $mapping_tile->{$tile_type}->{$subcat}->{$map_id}){
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'down'} += $down;
+              }else{
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'latlng'} = $latlng;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'down'} += $down;
+              }
+              
+          }else{
+              if(exists $mapping_tile->{$tile_type}->{$map_id}){
+                  $mapping_tile->{$tile_type}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'down'} += $down;
+              }else{
+                  $mapping_tile->{$tile_type}->{$map_id}->{'latlng'} = $latlng;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'down'} += $down;
+              }
+          }
+
+      }
+      ##.
+
+      
       ##created directory( e.g. /[ID]/00010/ ) for mapping datas
       push @Mapping_Pathways, $$record{'Pathway'};
       unless (mkdir ("./$Mapping_ID/Graph/$$record{'Pathway'}") or $! == Errno::EEXIST){
@@ -206,50 +268,50 @@ foreach my $hash (@$InputData){
 
       ## Get latlng data
       if ($$record{'Shape'} eq 'Rectangle') { ## Shape that applies to this condition is very ""LOW""
-#	@coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
-	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
+          #	@coords = ( "$$record{'latlng'}{'sw_lat'}", "$$record{'latlng'}{'sw_lng'}", "$$record{'latlng'}{'ne_lat'}", "$$record{'latlng'}{'ne_lng'}");
+          ($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
 
-	if($GraphMapping_Switch{'Fill_Color'} == 1){
-	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
-	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
-	}
+          if($GraphMapping_Switch{'Fill_Color'} == 1){
+              $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
+              $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
+          }
 	
-	my $rect_width = $ne_x - $sw_x;
-	my $rect_height = $sw_y - $ne_y;
-	if($rect_width < $rect_height){
-	  $sw_x = $ne_x - $rect_width;
-	  $sw_x += ($rect_height/2) - ($rect_width/2);
-	  $ne_x =  $sw_x + ($rect_width);
-	  $ne_y = $sw_y - ($rect_width);
-	}else{
-	  $sw_x = $ne_x - $rect_width;
-	  $sw_x += ($rect_width/2) - ($rect_height/2);
-	  $ne_x =  $sw_x + ($rect_height);
-	  $ne_y = $sw_y - ($rect_height);
-	}
+          my $rect_width = $ne_x - $sw_x;
+          my $rect_height = $sw_y - $ne_y;
+          if($rect_width < $rect_height){
+              $sw_x = $ne_x - $rect_width;
+              $sw_x += ($rect_height/2) - ($rect_width/2);
+              $ne_x =  $sw_x + ($rect_width);
+              $ne_y = $sw_y - ($rect_width);
+          }else{
+              $sw_x = $ne_x - $rect_width;
+              $sw_x += ($rect_width/2) - ($rect_height/2);
+              $ne_x =  $sw_x + ($rect_height);
+              $ne_y = $sw_y - ($rect_height);
+          }
 
-	($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
-	 ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+          ($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+          ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
 
 	
 	
       } elsif ($$record{'Shape'} eq 'Circle') { ## Shape that applies to this condition is very ""OFTEN""
 
-	my ($x, $y) = ($$record{'xy'}{'x'}, $$record{'xy'}{'y'});
+          my ($x, $y) = ($$record{'xy'}{'x'}, $$record{'xy'}{'y'});
 
-	if($GraphMapping_Switch{'Fill_Color'} == 1){
-	  $push2JSON->{'i_LatLng'}->{'center_latlng'} = [&Generator::xy2latlng($x, $y)];
-	  $push2JSON->{'i_LatLng'}->{'perimeter_latlng'} = [&Generator::xy2latlng($x+28, $y+28)];
-	}
+          if($GraphMapping_Switch{'Fill_Color'} == 1){
+              $push2JSON->{'i_LatLng'}->{'center_latlng'} = [&Generator::xy2latlng($x, $y)];
+              $push2JSON->{'i_LatLng'}->{'perimeter_latlng'} = [&Generator::xy2latlng($x+28, $y+28)];
+          }
+          
 
+          ($sw_x, $sw_y) = ($x - 180, $y + 180); ## 地図全体の大きさが必要になるかも。今のところは、system関数でサイズを図る。
+          ($ne_x, $ne_y) = ($x + 180, $y - 180); ## 
+          my $rect_width = $ne_x - $sw_x;
+          $ne_y = $sw_y -  $rect_width;
 
-	($sw_x, $sw_y) = ($x - 180, $y + 180); ## 地図全体の大きさが必要になるかも。今のところは、system関数でサイズを図る。
-	($ne_x, $ne_y) = ($x + 180, $y - 180); ## 
-	my $rect_width = $ne_x - $sw_x;
-	$ne_y = $sw_y -  $rect_width;
-
-	 ($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
-	 ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
+          ($sw_lat, $sw_lng) = (&Generator::xy2latlng($sw_x, $sw_y));
+          ($ne_lat, $ne_lng) = (&Generator::xy2latlng($ne_x, $ne_y) );
 
       }
       #.
@@ -259,11 +321,11 @@ foreach my $hash (@$InputData){
 
       
       if($GraphMapping_Switch{'Fill_Color'} == 1){
-	$push2JSON->{'i_color'} = $element_color;
+          $push2JSON->{'i_color'} = $element_color;
       }
 
       if($GraphMapping_Switch{'Mapping'} == 1){
-	$push2JSON->{'Graph_Path'} = "${Mapping_ID}/Graph/$$record{'Pathway'}/${query_id}.png";
+          $push2JSON->{'Graph_Path'} = "${Mapping_ID}/Graph/$$record{'Pathway'}/${query_id}.png";
       }
       ##.
       
@@ -285,10 +347,47 @@ foreach my $hash (@$InputData){
       my $push2JSON = {};
       
       my @coords;
+
+      ## mapping tile set
+      my $map_id = $$record{'Pathway'};
+      my $category = $Pathway_Maps->find({'Map_ID' => "$map_id"});
+      while(my $recordOfPathway_Maps = $category->next){
+          my $latlng = $$recordOfPathway_Maps{'LatLng'};
+          my $tile_type = $$recordOfPathway_Maps{'Category'};
+
+          if($tile_type eq 'Metabolism'){
+              my $subcat = $$recordOfPathway_Maps{'SubCategory'};
+              if(exists $mapping_tile->{$tile_type}->{$subcat}->{$map_id}){
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'down'} += $down;
+              }else{
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'latlng'} = $latlng;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$subcat}->{$map_id}->{'down'} += $down;
+              }
+              
+          }else{
+              if(exists $mapping_tile->{$tile_type}->{$map_id}){
+                  $mapping_tile->{$tile_type}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'down'} += $down;
+              }else{
+                  $mapping_tile->{$tile_type}->{$map_id}->{'latlng'} = $latlng;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'total'}++;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'up'} += $up;
+                  $mapping_tile->{$tile_type}->{$map_id}->{'down'} += $down;
+              }
+          }
+      }
+      ##.
+
+      
       push @Mapping_Pathways, $$record{'Pathway'};
       ##created directory( e.g. /[ID]/Graph/00010/ ) for mapping datas
       unless (mkdir ("./$Mapping_ID/Graph/$$record{'Pathway'}") or $! == Errno::EEXIST) {
-	die "failed to create dir:./$Mapping_ID/Graph/$$record{'Pathway'}:$!";
+          die "failed to create dir:./$Mapping_ID/Graph/$$record{'Pathway'}:$!";
       }
       ##.
 
@@ -296,13 +395,13 @@ foreach my $hash (@$InputData){
       my ($sw_lat, $sw_lng, $ne_lat, $ne_lng);
 
       if ($$record{'Shape'} eq 'Rectangle') {
-	($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
+          ($sw_x, $sw_y, $ne_x, $ne_y) = ("$$record{'xy'}{'sw_x'}", "$$record{'xy'}{'sw_y'}" , "$$record{'xy'}{'ne_x'}", "$$record{'xy'}{'ne_y'}" );
 
 
-	if($GraphMapping_Switch{'Fill_Color'} == 1){ # fill in circle
-	  $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
-	  $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
-	}
+          if($GraphMapping_Switch{'Fill_Color'} == 1){ # fill in circle
+              $push2JSON->{'i_LatLng'}->{'sw_latlng'} = [&Generator::xy2latlng($sw_x, $sw_y)];
+              $push2JSON->{'i_LatLng'}->{'ne_latlng'} = [&Generator::xy2latlng($ne_x, $ne_y)];
+          }
 	##これを足がかりとする．他の変更は一斉に．
 	##latlngをxyに変換し画像サイズに設定の上またlatlng値に戻す．
 	## swを固定する．つまり右上にはみ出た画像を貼ることになる．
@@ -343,7 +442,7 @@ foreach my $hash (@$InputData){
 
   my $return_num = &R_Graph($query_id, $Mapping_ID, $graph_type, $time, $frequency, \@Mapping_Pathways, $backgroundColor);
 
-  if ($return_num = 0){ ## Occurs when &R_Graph failed
+  if ($return_num == 0){ ## Occurs when &R_Graph failed
     $R->stopR();
     printf("0.3f", Time::HiRes::time - $start_time);
     die "$query_id: Generate Graph failed\n";
@@ -357,6 +456,8 @@ foreach my $hash (@$InputData){
   #$collection2->insert($insert);
   ##
 
+  
+  
 =pod
 
 ## Create a Zip file of Mapping Data
@@ -369,6 +470,44 @@ $zip->writeToFileNamed( "${Mapping_ID}/${Mapping_ID}.zip" );
 =cut
 
 }
+
+
+my @black = (0, 0, 0);
+my @red = (255, 0, 0);
+my @green = (0, 255, 0);
+
+for my$cat(keys %{$mapping_tile}){
+    if($cat eq 'Metabolism'){
+        for my$subcat(keys %{$mapping_tile->{$cat}}){
+            my @push2mapping_tile = ();
+            for my $map(keys %{$mapping_tile->{$cat}->{$subcat}}){
+                $mapping_tile->{$cat}->{$subcat}->{$map}->{'upcolor'} = '#'. unpack("H6", pack("C3", map{ (($green[$_] - $black[$_]) * ($mapping_tile->{$cat}->{$subcat}->{$map}->{'up'}/$mapping_tile->{$cat}->{$subcat}->{$map}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+                $mapping_tile->{$cat}->{$subcat}->{$map}->{'downcolor'} = '#'. unpack("H6", pack("C3", map{ (($red[$_] - $black[$_]) * ($mapping_tile->{$cat}->{$subcat}->{$map}->{'down'}/$mapping_tile->{$cat}->{$subcat}->{$map}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+                
+                push @push2mapping_tile,  $mapping_tile->{$cat}->{$subcat}->{$map};
+                delete $mapping_tile->{$cat}->{$subcat}->{$map};
+            }
+            $mapping_tile->{$cat}->{$subcat} = \@push2mapping_tile;
+           
+        }
+
+    }else{
+        my @push2mapping_tile = ();
+        for my$map(keys %{$mapping_tile->{$cat}}){
+
+            $mapping_tile->{$cat}->{$map}->{'upcolor'} = '#'. unpack("H6", pack("C3", map{ (($green[$_] - $black[$_]) * ($mapping_tile->{$cat}->{$map}->{'up'}/$mapping_tile->{$cat}->{$map}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+            $mapping_tile->{$cat}->{$map}->{'downcolor'} = '#'. unpack("H6", pack("C3", map{ (($red[$_] - $black[$_]) * ($mapping_tile->{$cat}->{$map}->{'down'}/$mapping_tile->{$cat}->{$map}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+
+            push @push2mapping_tile,  $mapping_tile->{$cat}->{$map};
+            delete $mapping_tile->{$cat}->{$map};
+        }
+        $mapping_tile->{$cat} = \@push2mapping_tile;
+    }
+
+}
+
+$JSON{"Graph"}{'Tile'} = $mapping_tile;
+
 
 ## Comparison Mapping
 foreach my $hash (@$comparisonData){

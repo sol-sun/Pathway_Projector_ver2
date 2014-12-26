@@ -206,7 +206,7 @@ var hoge = 0;
 			    }
  
    	  		   /** Graph Mapping displayed **/
-                           Change_Hierarchy( Hierarchy, Tile_Type, Map_ID, Mapping_mode );
+                           Change_Hierarchy( Hierarchy, Subcategory,Tile_Type, Map_ID, Mapping_mode );
 
 			    map.setZoom(1);
 			    map.panTo(new google.maps.LatLng(0,0));
@@ -276,7 +276,7 @@ var hoge = 0;
 
 						  }
    	  		   /** Graph Mapping displayed **/
-                           Change_Hierarchy( Hierarchy, Tile_Type, Map_ID, Mapping_mode );
+                           Change_Hierarchy( Hierarchy, Subcategory, Tile_Type, Map_ID, Mapping_mode );
                             Ext.get('map-canvas').unmask();
 					      },
 						  });
