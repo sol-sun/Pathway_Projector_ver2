@@ -63,6 +63,8 @@ $client->authenticate('Carpesys', 't11881tm', 'taiyo1102');
 my $database = $client->get_database('Carpesys');
 my $collection = $database->get_collection('Element');
 my $Pathway_Maps = $database->get_collection('Pathway_Maps');
+my $Subcategory = $database->get_collection('Subcategory');
+my $Category = $database->get_collection('Category');
 my $collection2 = $database->get_collection('Mapping_Data');
 ##.
 
@@ -476,6 +478,7 @@ my @black = (0, 0, 0);
 my @red = (255, 0, 0);
 my @green = (0, 255, 0);
 
+## tile mapping(Intensity Mapping)
 for my$cat(keys %{$mapping_tile}){
     if($cat eq 'Metabolism'){
         for my$subcat(keys %{$mapping_tile->{$cat}}){
@@ -490,24 +493,106 @@ for my$cat(keys %{$mapping_tile}){
             $mapping_tile->{$cat}->{$subcat} = \@push2mapping_tile;
            
         }
-
+        
     }else{
         my @push2mapping_tile = ();
         for my$map(keys %{$mapping_tile->{$cat}}){
-
+            
             $mapping_tile->{$cat}->{$map}->{'upcolor'} = '#'. unpack("H6", pack("C3", map{ (($green[$_] - $black[$_]) * ($mapping_tile->{$cat}->{$map}->{'up'}/$mapping_tile->{$cat}->{$map}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
             $mapping_tile->{$cat}->{$map}->{'downcolor'} = '#'. unpack("H6", pack("C3", map{ (($red[$_] - $black[$_]) * ($mapping_tile->{$cat}->{$map}->{'down'}/$mapping_tile->{$cat}->{$map}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
-
+            
             push @push2mapping_tile,  $mapping_tile->{$cat}->{$map};
             delete $mapping_tile->{$cat}->{$map};
         }
         $mapping_tile->{$cat} = \@push2mapping_tile;
     }
-
 }
 
 $JSON{"Graph"}{'Tile'} = $mapping_tile;
+##.
 
+## Subcategory Mapping
+my $mapping_subcategory = {};
+if(exists $mapping_tile->{'Metabolism'}){
+
+    for my$subcat(keys %{$mapping_tile->{'Metabolism'}}){
+        for (@{$mapping_tile->{'Metabolism'}->{$subcat}}){
+            $mapping_subcategory->{'Metabolism'}->{$subcat}->{'total'} += $_->{'total'};
+            $mapping_subcategory->{'Metabolism'}->{$subcat}->{'up'} += $_->{'up'};
+            $mapping_subcategory->{'Metabolism'}->{$subcat}->{'down'} += $_->{'down'};
+        }
+        my $subcategory = $Subcategory->find({'Subcategory' => "$subcat"});
+        while(my $recordOfSubcategory = $subcategory->next){
+            $mapping_subcategory->{'Metabolism'}->{$subcat}->{'latlng'} = $$recordOfSubcategory{'latlng'};
+            my $cn_x =  $$recordOfSubcategory{'xy'}->{'sw_x'} + (($$recordOfSubcategory{'xy'}->{'ne_x'} - $$recordOfSubcategory{'xy'}->{'sw_x'})/2);
+            my $cn_y = $$recordOfSubcategory{'xy'}->{'ne_y'} + (($$recordOfSubcategory{'xy'}->{'sw_y'} - $$recordOfSubcategory{'xy'}->{'ne_y'})/2);
+            my @cn_latlng = &Generator::xy2latlng($cn_x, $cn_y);
+            
+            $mapping_subcategory->{'Metabolism'}->{$subcat}->{'latlng'}->{'cn_lat'} = $cn_latlng[0];
+            $mapping_subcategory->{'Metabolism'}->{$subcat}->{'latlng'}->{'cn_lng'} = $cn_latlng[1];
+                
+        }
+    }
+
+    my @push2mapping_subcategory = ();
+    for my $subcat(keys %{$mapping_subcategory->{'Metabolism'}}){
+        my $cat = 'Metabolism';
+        $mapping_subcategory->{$cat}->{$subcat}->{'upcolor'} = '#'. unpack("H6", pack("C3", map{ (($green[$_] - $black[$_]) * ($mapping_subcategory->{$cat}->{$subcat}->{'up'}/$mapping_subcategory->{$cat}->{$subcat}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+        $mapping_subcategory->{$cat}->{$subcat}->{'downcolor'} = '#'. unpack("H6", pack("C3", map{ (($red[$_] - $black[$_]) * ($mapping_subcategory->{$cat}->{$subcat}->{'down'}/$mapping_subcategory->{$cat}->{$subcat}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+            
+        push @push2mapping_subcategory,  $mapping_subcategory->{$cat}->{$subcat};
+        delete $mapping_subcategory->{$cat}->{$subcat};
+    }
+    $mapping_subcategory->{'Metabolism'} = \@push2mapping_subcategory;
+
+    $JSON{'Graph'}{'Subcategory'} = $mapping_subcategory;
+}
+##.
+
+## Category Mapping
+my $mapping_category = {};
+for my$cat(keys %{$mapping_tile}){
+
+        if($cat eq 'Metabolism' && exists $mapping_subcategory->{$cat}){
+            for(@{$mapping_subcategory->{$cat}}){
+                $mapping_category->{$cat}->{'total'} += $_->{'total'};
+                $mapping_category->{$cat}->{'up'} += $_->{'up'};
+                $mapping_category->{$cat}->{'down'} += $_->{'down'};
+            }
+
+        }else{
+            for(@{$mapping_tile->{$cat}}){
+                $mapping_category->{$cat}->{'total'} += $_->{'total'};
+                $mapping_category->{$cat}->{'up'} += $_->{'up'};
+                $mapping_category->{$cat}->{'down'} += $_->{'down'};
+            }
+        }
+                    my $category = $Category->find({'Category' => "$cat"});
+            while(my $recordOfCategory = $category->next){
+                $mapping_category->{$cat}->{'latlng'} = $$recordOfCategory{'latlng'};
+                my $cn_x =  $$recordOfCategory{'xy'}->{'sw_x'} + (($$recordOfCategory{'xy'}->{'ne_x'} - $$recordOfCategory{'xy'}->{'sw_x'})/2);
+                my $cn_y = $$recordOfCategory{'xy'}->{'ne_y'} + (($$recordOfCategory{'xy'}->{'sw_y'} - $$recordOfCategory{'xy'}->{'ne_y'})/2);
+                my @cn_latlng = &Generator::xy2latlng($cn_x, $cn_y);
+                
+                $mapping_category->{$cat}->{'latlng'}->{'cn_lat'} = $cn_latlng[0];
+                $mapping_category->{$cat}->{'latlng'}->{'cn_lng'} = $cn_latlng[1];
+            
+            }
+        
+}
+my @push2mapping_category = ();
+for my $cat(keys %{$mapping_category}){
+            $mapping_category->{$cat}->{'upcolor'} = '#'. unpack("H6", pack("C3", map{ (($green[$_] - $black[$_]) * ($mapping_category->{$cat}->{'up'}/$mapping_category->{$cat}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+        $mapping_category->{$cat}->{'downcolor'} = '#'. unpack("H6", pack("C3", map{ (($red[$_] - $black[$_]) * ($mapping_category->{$cat}->{'down'}/$mapping_category->{$cat}->{'total'} * 100)/100) + $black[$_]} (0..2) ) );
+            
+            push @push2mapping_category,  $mapping_category->{$cat};
+            delete $mapping_category->{$cat};
+            
+}
+$mapping_category = \@push2mapping_category;
+$JSON{'Graph'}{'Category'} = $mapping_category;
+
+##.
 
 ## Comparison Mapping
 foreach my $hash (@$comparisonData){
@@ -756,7 +841,7 @@ foreach my $hash (@$comparisonData){
 
   my $return_num = &R_Comparison($query_id, $Mapping_ID, $c_label, $frequency, \@Mapping_Pathways, $backgroundColor);
 
-  if ($return_num = 0){ ## Occurs when &R_Graph failed
+  if ($return_num == 0){ ## Occurs when &R_Graph failed
     $R->stopR();
     printf("0.3f", Time::HiRes::time - $start_time);
     die "$query_id: Generate Graph failed\n";

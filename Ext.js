@@ -183,87 +183,6 @@ Ext.onReady(function(){
 	    
     });
 
-    /*
-      
-      C00160
-      C00022
-      C00186
-      C01089
-      C05984
-      C00122
-      C00042
-      C05123
-      C01879
-      C00233
-      C00489
-      C00049
-      C00149
-      C01620
-      C00346
-      C00026
-      C01601
-      C00366
-      C02768
-      C01571
-      C00417
-      C08261
-      C00311
-      C00158
-      C00879
-      C00199
-      C00668
-      C05382
-      C00037
-      C00041
-      C02261
-      C00114
-      C00065
-      C06772
-      C00519
-      C00791
-      C00429
-      C00148
-      C00581
-      C00719
-      C00183
-      C00188
-      C00245
-      C05127
-      C00178
-      C01879
-      C00408
-      C01157
-      C00300
-      C00407
-      C00123
-      C00152
-      C00077
-      C00049
-      C00346
-      C10172
-      C01181
-      C00064
-      C00047
-      C00025
-      C00073
-      C00135
-      C01551
-      C00637
-      C00956
-      C00318
-      C00079
-      C01152
-      C02693
-      C00062
-      C00327
-      C00082
-      C02571
-      C00078
-      C00055
-      C00670
-      C00051
-      
-    */
 
     var Store_ComparisonMapping = Ext.create('Ext.data.Store', {
 	    autoDestroy: true,
@@ -1220,7 +1139,146 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 	        });
 	        mappingGraph_Data.overlay.clear();
 	        mappingGraph_Data.mask.setMap(null);
-            
+
+            if(mappingGraph_Data.overlay.getArray() == 0 && eval('mappingGraph_Data.data.Graph').hasOwnProperty('Category')){
+                mappingGraph_Data.mask.setMap(map);
+                    var bound_down,
+                        bound_up;
+		            for(var i=0; i< eval('mappingGraph_Data.data.Graph.Category.length');i++){
+                        var down_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lng')
+                            )
+
+                        ];
+
+                        var up_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lng')
+                            )
+                        ];
+                        
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: up_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Category[i].upcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                        }));
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: down_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Category[i].downcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                        }));
+
+                        
+			            var proj = map.getProjection();
+                                                
+                        var cw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Category[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lng')
+						                                                         ));
+                        var cc_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Category[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Category[i].latlng.cn_lng')
+						                                                         ));
+                        var cs_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Category[i].latlng.cn_lng')
+						                                                         ));
+
+                        var img_width = (cc_xy.x - cw_xy.x) * 0.55;
+                        var img_height = (cs_xy.y - cc_xy.y) * 0.4;
+                        var sw_xy = {};
+                        var ne_xy = {};
+                        sw_xy.x = cc_xy.x - img_width;
+                        sw_xy.y = cc_xy.y + img_height;
+                        
+                        ne_xy.x = cc_xy.x + img_width;
+                        ne_xy.y = cc_xy.y - img_height;
+                        
+                        var sw = proj.fromPointToLatLng(sw_xy);
+                        var ne = proj.fromPointToLatLng(ne_xy);
+                        
+                        // Genetic_Information_Processing
+                        
+                        var bound = new google.maps.LatLngBounds(sw, ne);
+                        var img = 'Data/Img/Mapping/Marker/num'+eval('mappingGraph_Data.data.Graph.Category[i].total')+'.png';
+                        
+			            mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+
+
+                        if( eval('mappingGraph_Data.data.Graph.Category[i].up') !== 0  ||  eval('mappingGraph_Data.data.Graph.Category[i].down') !== 0 ){
+
+                            if( eval('mappingGraph_Data.data.Graph.Category[i].up') !== 0  ){
+                                var nw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lng')
+						                                                                 ));
+                        
+                                sw_xy.x = nw_xy.x + (img_width/2.5);
+                                sw_xy.y = nw_xy.y + (img_height*1.2);
+                                
+                                ne_xy.x = nw_xy.x + (img_width*2);
+                                ne_xy.y = nw_xy.y + (img_height*0.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Category[i].up')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+
+                            if( eval('mappingGraph_Data.data.Graph.Category[i].down') !== 0  ){
+                                var se_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Category[i].latlng.sw_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Category[i].latlng.ne_lng')
+						                                                                 ));
+                                sw_xy.x = se_xy.x - (img_width);
+                                sw_xy.y = se_xy.y - (img_height*0.2);
+
+                                ne_xy.x = se_xy.x + img_width;
+                                ne_xy.y = se_xy.y - (img_height*1.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Category[i].down')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+                            
+                        }
+
+                        mappingGraph_Data.overlay.forEach(function(data,idx){
+			                data.setMap(map);
+			            });
+                    }
+                
+            }
+                       
 	    }else if( hie === 'Subcategory' ){
 	        /** Delete Graph Images **/
 	        mappingGraph_Data.overlay.forEach(function(data,idx){
@@ -1228,7 +1286,145 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 	        });
 	        mappingGraph_Data.overlay.clear();
 	        mappingGraph_Data.mask.setMap(null);
+            if(mappingGraph_Data.overlay.getArray() == 0 && eval('mappingGraph_Data.data.Graph').hasOwnProperty('Subcategory')){
+                mappingGraph_Data.mask.setMap(map);
+    var bound_down,
+                        bound_up;
+		            for(var i=0; i< eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'.length');i++){
+                        var down_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lng')
+                            )
 
+                        ];
+
+                        var up_coords = [
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lat'),
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lng')
+                            ),
+                            new google.maps.LatLng(
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lat'),
+                                eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lng')
+                            )
+                        ];
+                        
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: up_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].upcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                        }));
+                        mappingGraph_Data.overlay.push( new google.maps.Polygon({
+                            paths: down_coords,
+                            map: map,
+                            strokeColor:'white',
+                            strokeOpacity: 0.9,
+                            strokeWeight:0.3,
+                            fillColor: eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].downcolor'),
+				            fillOpacity: 0.85,
+                            clickable: false
+                        }));
+
+                        
+			            var proj = map.getProjection();
+                                                
+                        var cw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lng')
+						                                                         ));
+                        var cc_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.cn_lng')
+						                                                         ));
+                        var cs_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.cn_lng')
+						                                                         ));
+
+                        var img_width = (cc_xy.x - cw_xy.x) * 0.55;
+                        var img_height = (cs_xy.y - cc_xy.y) * 0.4;
+                        var sw_xy = {};
+                        var ne_xy = {};
+                        sw_xy.x = cc_xy.x - img_width;
+                        sw_xy.y = cc_xy.y + img_height;
+                        
+                        ne_xy.x = cc_xy.x + img_width;
+                        ne_xy.y = cc_xy.y - img_height;
+                        
+                        var sw = proj.fromPointToLatLng(sw_xy);
+                        var ne = proj.fromPointToLatLng(ne_xy);
+                        
+                        // Genetic_Information_Processing
+                        
+                        var bound = new google.maps.LatLngBounds(sw, ne);
+                        var img = 'Data/Img/Mapping/Marker/num'+eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].total')+'.png';
+                        
+			            mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+
+
+                        if( eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].up') !== 0  ||  eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].down') !== 0 ){
+
+                            if( eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].up') !== 0  ){
+                                var nw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lng')
+						                                                                 ));
+                        
+                                sw_xy.x = nw_xy.x + (img_width/2.5);
+                                sw_xy.y = nw_xy.y + (img_height*1.2);
+                                
+                                ne_xy.x = nw_xy.x + (img_width*2);
+                                ne_xy.y = nw_xy.y + (img_height*0.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].up')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+
+                            if( eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].down') !== 0  ){
+                                var se_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.sw_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.ne_lng')
+						                                                                 ));
+                                sw_xy.x = se_xy.x - (img_width);
+                                sw_xy.y = se_xy.y - (img_height*0.2);
+
+                                ne_xy.x = se_xy.x + img_width;
+                                ne_xy.y = se_xy.y - (img_height*1.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].down')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+                            
+                        }
+
+                        mappingGraph_Data.overlay.forEach(function(data,idx){
+			                data.setMap(map);
+			            });
+                    }
+                
+                
+            }
             
             
 	    }else if( hie === 'Tile' ){
@@ -1279,8 +1475,8 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
                                 eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lat'),
                                 eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lng')
                             )
-
                         ];
+                        
                         mappingGraph_Data.overlay.push( new google.maps.Polygon({
                             paths: up_coords,
                             map: map,
@@ -1290,7 +1486,6 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
                             fillColor: eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].upcolor'),
 				            fillOpacity: 0.85,
                             clickable: false
-                           
                         }));
                         mappingGraph_Data.overlay.push( new google.maps.Polygon({
                             paths: down_coords,
@@ -1301,10 +1496,91 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
                             fillColor: eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].downcolor'),
 				            fillOpacity: 0.85,
                             clickable: false
-                           
                         }));
 
+                        
+			            var proj = map.getProjection();
+                                                
+                        var cw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lng')
+						                                                         ));
+                        var cc_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.cn_lng')
+						                                                         ));
+                        var cs_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.cn_lng')
+						                                                         ));
+
+                        var img_width = (cc_xy.x - cw_xy.x) * 0.55;
+                        var img_height = (cs_xy.y - cc_xy.y) * 0.4;
+                        var sw_xy = {};
+                        var ne_xy = {};
+                        sw_xy.x = cc_xy.x - img_width;
+                        sw_xy.y = cc_xy.y + img_height;
+                        
+                        ne_xy.x = cc_xy.x + img_width;
+                        ne_xy.y = cc_xy.y - img_height;
+                        
+                        var sw = proj.fromPointToLatLng(sw_xy);
+                        var ne = proj.fromPointToLatLng(ne_xy);
+                        
+                        // Genetic_Information_Processing
+                        /** marker_length= 525392.902968137maps_length= 2680227.962480968ratio= 0.19602545392512213 **/
+                        
+                        var bound = new google.maps.LatLngBounds(sw, ne);
+                        var img = 'Data/Img/Mapping/Marker/num'+eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].total')+'.png';
+                        
+			            mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+
+
+                        if( eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].up') !== 0  ||  eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].down') !== 0 ){
+
+                            if( eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].up') !== 0  ){
+                                var nw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lng')
+						                                                                 ));
+                        
+                                sw_xy.x = nw_xy.x + (img_width/2.5);
+                                sw_xy.y = nw_xy.y + (img_height*1.2);
+                                
+                                ne_xy.x = nw_xy.x + (img_width*2);
+                                ne_xy.y = nw_xy.y + (img_height*0.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].up')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+
+                            if( eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].down') !== 0  ){
+                                var se_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.sw_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].latlng.ne_lng')
+						                                                                 ));
+                                sw_xy.x = se_xy.x - (img_width);
+                                sw_xy.y = se_xy.y - (img_height*0.2);
+
+                                ne_xy.x = se_xy.x + img_width;
+                                ne_xy.y = se_xy.y - (img_height*1.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Tile.'+tile+subcat+'[i].down')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+
+                            
+                        }
+
+
+                        mappingGraph_Data.overlay.forEach(function(data,idx){
+			                data.setMap(map);
+			            });
                     }
+                    
                 }else{
     
                     mappingGraph_Data.mask.setMap(map);
@@ -1363,7 +1639,89 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
                             clickable: false
                            
                         }));
-                    
+
+
+                        /** **/
+                        
+			            var proj = map.getProjection();
+                                                
+                        var cw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lng')
+						                                                         ));
+                        var cc_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.cn_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.cn_lng')
+						                                                         ));
+                        var cs_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lat'),
+						                                                          eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.cn_lng')
+						                                                         ));
+
+                        var img_width = (cc_xy.x - cw_xy.x) * 0.55;
+                        var img_height = (cs_xy.y - cc_xy.y) * 0.4;
+                        var sw_xy = {};
+                        var ne_xy = {};
+                        sw_xy.x = cc_xy.x - img_width;
+                        sw_xy.y = cc_xy.y + img_height;
+                        
+                        ne_xy.x = cc_xy.x + img_width;
+                        ne_xy.y = cc_xy.y - img_height;
+                        
+                        var sw = proj.fromPointToLatLng(sw_xy);
+                        var ne = proj.fromPointToLatLng(ne_xy);
+                        
+                        // Genetic_Information_Processing
+                        /** marker_length= 525392.902968137maps_length= 2680227.962480968ratio= 0.19602545392512213 **/
+                        
+                        var bound = new google.maps.LatLngBounds(sw, ne);
+                        var img = 'Data/Img/Mapping/Marker/num'+eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].total')+'.png';
+                        
+			            mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+
+                        if( eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].up') !== 0  ||  eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].down') !== 0 ){
+
+                            if( eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].up') !== 0  ){
+                                var nw_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lng')
+						                                                                 ));
+                        
+                                sw_xy.x = nw_xy.x + (img_width/2.5);
+                                sw_xy.y = nw_xy.y + (img_height*1.2);
+                                
+                                ne_xy.x = nw_xy.x + (img_width*2);
+                                ne_xy.y = nw_xy.y + (img_height*0.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].up')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+
+                            if( eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].down') !== 0  ){
+                                var se_xy = proj.fromLatLngToPoint(new google.maps.LatLng(eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.sw_lat'),
+						                                                                  eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].latlng.ne_lng')
+						                                                                 ));
+                                sw_xy.x = se_xy.x - (img_width);
+                                sw_xy.y = se_xy.y - (img_height*0.2);
+
+                                ne_xy.x = se_xy.x + img_width;
+                                ne_xy.y = se_xy.y - (img_height*1.2);
+                                
+                                sw = proj.fromPointToLatLng(sw_xy);
+                                ne = proj.fromPointToLatLng(ne_xy);
+                                                
+                                bound = new google.maps.LatLngBounds(sw, ne);
+                                img = 'Data/Img/Mapping/number/num'+eval('mappingGraph_Data.data.Graph.Tile.'+tile+'[i].down')+'.png';
+                                mappingGraph_Data.overlay.push( new  mappingGraph(bound, img, map) );
+                            }
+
+                            
+                        }
+
+                        mappingGraph_Data.overlay.forEach(function(data,idx){
+			                data.setMap(map);
+			            });
+
                     }
                 }
             }
@@ -1441,12 +1799,12 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 				                eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
 				                eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
 			                ];
-
+                            
 			                /** calculate distance between Compound center  **/
 			                /** calculate length of a line segment from circle(Compound) center to circle(Compound) perimeter. **/
 			                
 			                var radius = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(center_lat, center_lng), new google.maps.LatLng(perimeter_lat, perimeter_lng));
-
+                            
 			                mappingGraph_Data.overlay.push( new google.maps.Circle({
 				                strokeColor: 'black',
 				                strokeOpacity: 0.8,
@@ -1542,11 +1900,94 @@ function mappingGraph(bounds, image, map) {
 	    div.style.height = (sw.y - ne.y) + 'px';
     };
     
-    mappingGraph.onRemove = function() {
+    mappingGraph.onRemove = function(){
 	    this.div_.parentNode.removeChild(this.div_);
 	    this.div_ = null;
     };
-    return mappingGraph;    
+    return mappingGraph;
+}
+
+
+function mappingNumber(bounds, image, position, map) {
+
+    var mappingGraph;
+    mappingGraph = new google.maps.OverlayView();
+
+
+    // Explicitly call setMap on this overlay.
+    // this.setMap(map);
+
+
+
+    mappingGraph.onAdd = function() {
+
+        // Initialize all properties.
+        this.bounds_ = bounds;
+        this.image_ = image;
+        this.map_ = map;
+        // Define a property to hold the image's div. We'll
+        // actually create this div upon receipt of the onAdd()
+        // method so we'll leave it null for now.
+        this.div_ = null;
+
+
+	    
+        var div = document.createElement('div');
+        div.style.borderStyle = 'none';
+        div.style.borderWidth = '0px';
+        div.style.position = 'absolute';
+
+        // Create the img element and attach it to the div.
+        var img = document.createElement('img');
+        img.src = this.image_;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.position = 'absolute';
+        div.appendChild(img);
+
+        this.div_ = div;
+	    
+	    // Add the element to the "overlayLayer" pane.
+	    var panes = this.getPanes();
+	    panes.overlayShadow.appendChild(div);//    panes.overlayLayer.appendChild(div);
+    };
+    // [END region_attachment]
+    // [START region_drawing]
+    mappingGraph.draw = function() {
+	    
+	    // We use the south-west and north-east
+	    // coordinates of the overlay to peg it to the correct position and size.
+	    // To do this, we need to retrieve the projection from the overlay.
+	    var overlayProjection = this.getProjection();
+	    
+	    // Retrieve the south-west and north-east coordinates of this overlay
+	    // in LatLngs and convert them to pixel coordinates.
+	    // We'll use these coordinates to resize the div.
+	    var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+	    var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+	    
+	    // Resize the image's div to fit the indicated dimensions.
+	    var div = this.div_;
+
+        /*
+        if(position === 'center'){
+            sw.x -= 16.5;
+            sw.y += 16.25;
+            ne.x += 16.5;
+            ne.y -= 16.25;
+        }*/
+
+	    div.style.left = sw.x + 'px';
+	    div.style.top = ne.y + 'px';
+	    div.style.width = (ne.x - sw.x) + 'px';
+	    div.style.height = (sw.y - ne.y) + 'px';
+    };
+    
+    mappingGraph.onRemove = function(){
+	    this.div_.parentNode.removeChild(this.div_);
+	    this.div_ = null;
+    };
+    return mappingGraph;
 }
 
 
