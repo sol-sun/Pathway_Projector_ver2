@@ -1210,7 +1210,7 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 						                                                          eval('mappingGraph_Data.data.Graph.Category[i].latlng.cn_lng')
 						                                                         ));
 
-                        var img_width = (cc_xy.x - cw_xy.x) * 0.55;
+                        var img_width = (cc_xy.x - cw_xy.x) * 0.4;
                         var img_height = (cs_xy.y - cc_xy.y) * 0.4;
                         var sw_xy = {};
                         var ne_xy = {};
@@ -1356,7 +1356,7 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 						                                                          eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'[i].latlng.cn_lng')
 						                                                         ));
 
-                        var img_width = (cc_xy.x - cw_xy.x) * 0.55;
+                        var img_width = (cc_xy.x - cw_xy.x) * 0.4;
                         var img_height = (cs_xy.y - cc_xy.y) * 0.4;
                         var sw_xy = {};
                         var ne_xy = {};
