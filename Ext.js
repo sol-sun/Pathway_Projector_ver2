@@ -817,12 +817,12 @@ Ext.onReady(function(){
 					                    //				    emptyText: 'Select color'
 				                    },{
 					                    xtype: 'radiogroup',
-					                    labelWidth: 150,
+					                    labelWidth: 350,
                                         hidden:true,
 					                    layout: {
 					                        autoFlex: false
 					                    },
-					                    fieldLabel: 'Color for Genes/Proteins ',
+					                    fieldLabel: 'Color for Elements(Genes, Proteins and Compounds) ',
 					                    defaults: {
 					                        name: 'gene_color',
 					                        margin: '0 15 0 0'
@@ -840,33 +840,6 @@ Ext.onReady(function(){
 					                        boxLabel: 'Blue to Yellow'
 
 					                    }]
-				                    },{
-
-					                    xtype: 'radiogroup',
-					                    labelWidth: 150,
-                                        hidden:true,
-					                    layout: {
-					                        autoFlex: false
-					                    },
-					                    fieldLabel: 'Color for Compounds ',
-					                    defaults: {
-					                        name: 'compound_color',
-					                        margin: '0 15 0 0'
-					                    },
-					                    
-					                    style: 'opacity:.3',
-					                    disabled: true,
-
-					                    items: [{
-					                        inputValue: 'red2green',
-					                        boxLabel: 'Red to Green'
-					                        
-					                    },{
-					                        inputValue: 'blue2yellow',
-					                        boxLabel: 'Blue to Yellow',
-					                        checked: true
-					                    }]
-					                    
 				                    }]				
 				                    
 				                },{
@@ -1288,7 +1261,7 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 	        mappingGraph_Data.mask.setMap(null);
             if(mappingGraph_Data.overlay.getArray() == 0 && eval('mappingGraph_Data.data.Graph').hasOwnProperty('Subcategory')){
                 mappingGraph_Data.mask.setMap(map);
-    var bound_down,
+                var bound_down,
                         bound_up;
 		            for(var i=0; i< eval('mappingGraph_Data.data.Graph.Subcategory.'+tile+'.length');i++){
                         var down_coords = [
@@ -1792,14 +1765,12 @@ function Change_Hierarchy(hie, subcat, tile, pathw, Mapping_mode){
 				                
 			                }));
 			            }else{
-			                
-			                var [center_lat, center_lng, perimeter_lat, perimeter_lng] = [
-				                eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.center_latlng[0]'),
-				                eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.center_latlng[1]'),
-				                eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]'),
-				                eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]')
-			                ];
-                            
+
+
+			                var center_lat = eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.center_latlng[0]');
+                            var center_lng = eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.center_latlng[1]');
+                            var perimeter_lat = eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[0]');
+                            var perimeter_lng = eval('mappingGraph_Data.data.'+Mapping_mode+'.map'+pathw+'[i].i_LatLng.perimeter_latlng[1]');
 			                /** calculate distance between Compound center  **/
 			                /** calculate length of a line segment from circle(Compound) center to circle(Compound) perimeter. **/
 			                
